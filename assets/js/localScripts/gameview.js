@@ -105,7 +105,7 @@ var render = function(game){
 			console.log("We are player: " + player_index);
 			var op_index = 1;
 			console.log("They are player: " + op_index + '\n');
-		} else if(res.players[1].socketId === socket.socket.sessionid){
+		} else if(game.players[1].socketId === socket.socket.sessionid){
 			var player_index = 1;
 			//Capture local reference into player_number
 			player_number = player_index;
@@ -114,12 +114,12 @@ var render = function(game){
 			console.log("They are player: " + op_index);
 		}
 		//Render cards in scrap pile
-		$('#scrap').html("Cards in Scrap: " + res.scrap.length);
+		$('#scrap').html("Cards in Scrap: " + game.scrap.length);
 
 		//Render Opponent's hand
-		for (var i = 0; i < res.players[op_index].hand.length; i++) {
+		for (var i = 0; i < game.players[op_index].hand.length; i++) {
 			//Select card to be rendered
-			var card = res.players[op_index].hand[i];
+			var card = game.players[op_index].hand[i];
 			//Append a div into #op_hand representing the card.
 			//It will have an id of #op_hand_INDEX, where INDEX = i
 			//and a class of .card
@@ -127,9 +127,9 @@ var render = function(game){
 		}
 
 		//Render our hand
-		for (var i = 0; i < res.players[player_index].hand.length; i++) {
+		for (var i = 0; i < game.players[player_index].hand.length; i++) {
 			//Select card to be rendered
-			var card = res.players[player_index].hand[i];
+			var card = game.players[player_index].hand[i];
 			//Append a div into #op_hand representing the card.
 			//It will have an id of #op_hand_INDEX, where INDEX = i
 			//and a class of .card
@@ -137,9 +137,9 @@ var render = function(game){
 		}
 
 		//Render Opponent's field
-		for (var i = 0; i < res.players[op_index].field.length; i++) {
+		for (var i = 0; i < game.players[op_index].field.length; i++) {
 			//Select card to be rendered
-			var card = res.players[op_index].field[i];
+			var card = game.players[op_index].field[i];
 			//Append a div into #op_hand representing the card.
 			//It will have an id of #op_hand_INDEX, where INDEX = i
 			//and a class of .card
@@ -147,9 +147,9 @@ var render = function(game){
 		}
 
 		//Render Your field
-		for (var i = 0; i < res.players[player_index].field.length; i++) {
+		for (var i = 0; i < game.players[player_index].field.length; i++) {
 			//Select card to be rendered
-			var card = res.players[player_index].field[i];
+			var card = game.players[player_index].field[i];
 			console.log("Logging card in our field: " + card);
 			//Append a div into #op_hand representing the card.
 			//It will have an id of #op_hand_INDEX, where INDEX = i
@@ -160,14 +160,43 @@ var render = function(game){
 }
 
 
+
+////////////////
+//Socket Stuff//
+////////////////
+socket.on('game', function(obj) {
+	console.log('Game event fired. Logging verb: ');
+	console.log(obj.verb);
+
+	//If the event was an update, log the changes
+	//ToDo: Change render function to take a game object param
+	if (obj.verb == 'updated') {
+		console.log('Game was updated. Logging data: ');
+		console.log(obj.data);
+		//Render the game using the game from server
+		render(obj.data.game);
+	}
+});
+
 ///////////////////////////
 //On Click Function Calls//
 ///////////////////////////
 
+//Make request to server and render game when render button is clicked
 $('#render').on('click', function(){
 	console.log("Making request for game to render");
 	socket.get('/game/' + displayId, function(res){
 		console.log(res);
-		render(res);
+		render(res.game);
+	});
+});
+
+//Request to draw a card when draw button is clicked
+$('#draw').on('click', function(){
+	console.log("Requesting to draw card");
+	socket.get('/draw', {displayId: displayId}, function(res){
+		console.log(res);
+		//Render game with response
+		render(res.game);
 	});
 });
