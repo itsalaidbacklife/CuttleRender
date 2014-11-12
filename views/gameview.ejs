@@ -1,0 +1,35 @@
+<body>
+GAMEVIEW
+<div id='displayId'><%= displayId %></div>
+<div id='oponent' class='wrap1'>
+	<div class='cardwrap' id='op_hand'>
+		<p>Oponent's Hand</p>
+	</div>
+	<div class='cardwrap' id='op_field'>
+		<p>Oponent's Field</p>
+	</div>
+</div>
+<div id='mid_wrapper'>
+	<div id='deck'></div>
+	<button id='deal'>Deal Hands</button>
+	<button id='draw'>Draw a Card</button>
+	<button id='clear'>Clear Board</button>
+	<div id='sel_wrap'>
+		Selected: 
+		<div id='selector'></div>
+	</div>
+	<div id='scrap'>Scrap: 0</div>
+</div>
+<div id='you' class='wrap1'>
+	<div class='cardwrap' id='your_field'>
+		<p>Your Field</p>
+	</div>
+	<div class='cardwrap' id='your_hand'>
+		<p>Your Hand</p>
+	</div>
+</div>
+<button id='render'>Render</button>
+
+<script src="/js/localScripts/gameview.js"></script>
+
+</body>

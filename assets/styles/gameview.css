@@ -1,0 +1,41 @@
+body {
+	max-height: 100%;
+	color:#188A00;
+	
+}
+
+.card {
+ 	background-size: 100%;
+ 	background-color: #530006;
+ 	max-width: 40%;
+ 	min-width: 30px;
+ 	max-height: inherit;
+ 	min-height: 50px;
+ 	display: inline-block;
+ 	text-align: center;
+ 	vertical-align: top;
+
+}
+
+.wrap1 {
+
+	min-width: 100%;
+	max-height: 28%;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	background-color: #CF6870;
+}
+
+.wrap1 p {
+	margin-top:5px;
+	text-align: center;
+	text-shadow: 2px 2px #CF6870;
+}
+
+#sel_wrap {
+	display: inline-block;
+}
+
+#selector {
+	display: inline-block;
+}
