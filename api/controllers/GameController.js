@@ -50,16 +50,63 @@ module.exports = {
 							game.save();
 							//Publish the changes
 							Game.publishUpdate(req.body.displayId, {game: game});
+						} else{
+							console.log("Player cannot draw due to Hand limit");
 						}
 
 					} else {
 						console.log("Wrong player requesting to move");
-						res.send(game);
+						console.log(game);
+						res.send({game:game});
 					}										
 				}
 			});
 
 
+		}
+	},
+
+	deal: function(req, res) {
+		console.log("Deal request made");
+		//Capture parameters. Expecting {displayId: displayId}
+		console.log(req.body);
+		//console.log(req.socket.id);
+		var req_id = req.body.displayId;
+
+		//Check if request is from socket (it should be)
+		if(req.isSocket) {
+			//Find the chosen game
+			Game.findOne({displayId: req_id}).populate('players').exec(
+			function(err, game){
+				console.log("Found game for deal action. Logging");
+				if(err || !game){
+					console.log("Game not found");
+					res.send("Game not found");
+				//Check that game has appropriate number of players
+				} else if(game.players.length === 2) {
+					console.log("Indside player length conditional");
+					//Check that requesting player is in the chosen game
+					if(req.socket.id === game.players[0].socketId || req.socket.id === game.players[1].socketId) {
+						//Deal one card to player[1] before looping through deal. They get an extra card
+						//and Player[0] goes first
+						game.players[1].hand[0] = game.deck.shift();
+						//Loop to finish dealing
+						for(i=0; i<5; i++) {
+							//Give a card to player[0]
+							game.players[0].hand[game.players[0].hand.length] = game.deck.shift();
+							//Give a card to player[1]
+							game.players[1].hand[game.players[1].hand.length] = game.deck.shift();
+						}
+
+						//Save and log new game
+						game.save();
+						//console.log(game);
+
+						//Publish new game
+						Game.publishUpdate(req_id, {game: game});
+					}
+				}
+			});
 		}
 	}
 	

@@ -54,6 +54,8 @@ module.exports.routes = {
 
   'GET /gameview': 'DisplayGameController.gotoGame',
 
-  'GET /draw': 'GameController.draw'
+  'GET /draw': 'GameController.draw',
+
+  'GET /deal': 'GameController.deal'
 
 };

@@ -197,6 +197,18 @@ $('#draw').on('click', function(){
 	socket.get('/draw', {displayId: displayId}, function(res){
 		console.log(res);
 		//Render game with response
-		render(res.game);
+		//render(res.game);
+	});
+});
+
+//Request to deal hands when deal button is clicked
+$('#deal').on('click', function(){
+	console.log('Requesting to deal');
+	//Make request for deal. Server should make changes, then
+	//respond with a json object {game: Game_Object}, which is
+	//passed to the render function
+	socket.get('/deal', {displayId: displayId}, function(res){
+		console.log(res);
+		//render(res.game);
 	});
 });
