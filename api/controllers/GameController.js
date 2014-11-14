@@ -22,7 +22,7 @@ module.exports = {
 					res.send("Game not found");
 				//Check that game is full before allowing a move
 				} else if(game.players.length === 2) {
-					console.log(game);
+					//console.log(game);
 					console.log("Logging socket of request to draw: " + req.socket.id);
 					//Checking which player is requesting to draw
 					if (game.players[0].socketId === req.socket.id) {
@@ -39,7 +39,7 @@ module.exports = {
 					if (player === (game.turn % 2) ) {
 						console.log("It is the correct player's turn");
 						//Check if you are at the hand limit
-						if (game.players[player].hand.length <= game.handLimit) {
+						if (game.players[player].hand.length < game.handLimit) {
 							console.log("Player is under the hand limit");
 							//Deal if all is legit
 							//Deal the card
@@ -84,7 +84,6 @@ module.exports = {
 					res.send("Game not found");
 				//Check that game has appropriate number of players
 				} else if(game.players.length === 2) {
-					console.log("Indside player length conditional");
 					//Check that requesting player is in the chosen game
 					if(req.socket.id === game.players[0].socketId || req.socket.id === game.players[1].socketId) {
 						//Deal one card to player[1] before looping through deal. They get an extra card
@@ -105,6 +104,52 @@ module.exports = {
 						//Publish new game
 						Game.publishUpdate(req_id, {game: game});
 					}
+				}
+			});
+		}
+	},
+
+	//Shuffles the cards in a deck
+	shuffle: function(req, res){
+		console.log("Shuffle request made");
+		console.log(req.body);
+		//Capture displayId of game to be shuffled
+		var req_id = req.body.displayId;
+		//Check if request was made through socket (only continue if yes)
+		if (req.isSocket) {
+			//Find the requested game
+			Game.findOne({displayId: req_id}).populate('players').exec(
+			function(err, game) {
+				if (err || !game) {
+					console.log("Game not found");
+				//Check that game is full
+				} else if (game.players.length === 2) {
+					//Check that player requesting shuffle is in requested game
+					if (req.socket.id === game.players[0].socketId || req.socket.id === game.players[1].socketId) {
+						//Keeps track of where we are in shuffling loop
+						var len_index = game.deck.length;
+						//randeom_index is randomly selected and used to shuffle deck
+						var random_index = 0;
+						var temp = '';
+						//Loops until we've swiched each place at least once
+						while (0 != len_index) {
+							random_index = Math.floor(Math.random() * len_index);
+							len_index -= 1;
+
+							//Swich deck[len_index] with deck[random_index]
+							temp = game.deck[len_index];
+							game.deck[len_index] = game.deck[random_index];
+							game.deck[random_index] = temp;
+						}
+
+						//Save changes and publish update
+						game.save();
+						Game.publishUpdate(req_id, {game: game});
+					} else{
+						console.log("Requesting player isn't in requested game!");
+					}
+				} else{
+					console.log("Not enough players in game!");
 				}
 			});
 		}

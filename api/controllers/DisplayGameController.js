@@ -161,7 +161,7 @@ module.exports = {
 				res.send("Game not found!");
 			//Only allow user to join open game
 			} else if(game.status === true){				
-				console.log(game);
+				//console.log(game);
 				console.log('\n');
 				//Check if this player is the second player to be brought to the view
 				if(game.players.length === 2){

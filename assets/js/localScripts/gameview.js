@@ -206,9 +206,19 @@ $('#deal').on('click', function(){
 	console.log('Requesting to deal');
 	//Make request for deal. Server should make changes, then
 	//respond with a json object {game: Game_Object}, which is
-	//passed to the render function
+	//logged. The server will also publish an update with
+	//the updated game, which will be used to render the changes
 	socket.get('/deal', {displayId: displayId}, function(res){
 		console.log(res);
 		//render(res.game);
+	});
+});
+
+//Request to shuffle when shuffle button is clicked
+$('#shuffle').on('click', function(){
+	console.log('Requesting Shuffle');
+	//Make request to shuffle deck
+	socket.get('/shuffle', {displayId: displayId}, function(res){
+		console.log(res);
 	});
 });
