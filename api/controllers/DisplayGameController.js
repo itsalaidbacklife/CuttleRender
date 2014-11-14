@@ -149,7 +149,7 @@ module.exports = {
 	//Sends the gameview to user (called after joinGame)
 	//This action should only be called through http (NOT SOCKETS)
 	gotoGame: function(req, res) {
-		console.log("\nGotoGame Firing. Socket: " + req.socket.id);
+		console.log("\nGotoGame Firing.");
 		//console.log('gotoGame Firing');
 		params = req.allParams();
 		//console.log(params);

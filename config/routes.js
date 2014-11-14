@@ -58,6 +58,8 @@ module.exports.routes = {
 
   'GET /deal': 'GameController.deal',
 
-  'GET /shuffle': 'GameController.shuffle'
+  'GET /shuffle': 'GameController.shuffle',
+
+  'GET /move_card': 'GameController.move_card'
 
 };

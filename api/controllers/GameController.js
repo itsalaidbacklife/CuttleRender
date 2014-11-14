@@ -153,6 +153,59 @@ module.exports = {
 				}
 			});
 		}
+	},
+	//Moves a card in a particular game
+	//Expected params: displayId, player, sel (selector) and dest (destination)
+	//TODO: Facilitate scuttling if dest is op_field
+	move_card: function(req, res){
+		console.log("Client has requested to move_card");
+		console.log(req.body);
+		var params = req.body;
+
+		//Only continue if request came through socket
+		if (req.isSocket) {
+			//Find the requested game and populate it with its players
+			Game.findOne({displayId: params.displayId}).populate('players').exec(
+			function(err, game){
+				//Check that game was found
+				if (err || !game) {
+					console.log("Game not found");
+					res.send("Game not found");
+				//Check that game is full
+				}else if (game.players.length === 2) {
+					//Check that it is requesting player's turn
+					if (params.player === (game.turn % 2) ) {
+						console.log("Correct player wants to move");
+
+						//Capture selector and destination from request
+						var sel = params.sel;
+						console.log(sel);
+						var dest = params.dest;
+						console.log(dest);
+
+						//Check if selected card is in players hand
+						if (sel.place === 'hand') {
+							//Check if destination is player's field
+							if (dest.place === 'your_field') {
+								//Store the card to be moved
+								var temp = game.players[params.player].hand[sel.index];
+								//Switch the desired card with the first card in the hand
+								game.players[params.player].hand[sel.index] = game.players[params.player].hand[0];
+								game.players[params.player].hand[0] = temp;
+
+								//Shift desired card off top of player's hand into the last index of their field
+								game.players[params.player].field[game.players[params.player].field.length] = game.players[params.player].hand.shift();
+								game.turn++;
+							}
+
+						}
+					}
+				}		
+			//Save changes and update clients
+			game.save();
+			Game.publishUpdate(params.displayId, {game: game});
+			});
+		}
 	}
 	
 };

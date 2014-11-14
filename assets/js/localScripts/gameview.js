@@ -86,6 +86,39 @@ var clear = function() {
 
 }
 
+//Clears and re-binds event hanlders for card clicks
+//Called during render function after new cards are rendered
+//TODO: Make this function update "Dest" when an #op_field is clicked
+var clicks = function() {
+	//Remove event hanlders for your_cards and op_field cards
+	$('.your_card').off('click');
+	$('.op_field').off('click');
+
+	//When one of your cards is clicked, select it
+	$('.your_card').on('click', function(){
+		//Deslect clicked card if it was already selected
+		if ($(this).html() === sel.card) {
+			console.log("Card was already selected; deselecting");
+			sel.clear();
+		} else {
+			console.log($(this).prop('id'));
+			temp_index = $(this).prop('id');
+			//Temp place will be used to find the place (hand/field) of the selected card
+			//match uses the regex.exec(str) method to crate an array of the mathing info
+			//The first element of match is the palce surrounded by underscores
+			//The second element (what we want) is the place, itself
+			var match = /\_([^()]*)\_/.exec(temp_index);
+			var place = match[1];
+			sel.place = place;
+			temp_index = temp_index.replace(/[^\d]/g, '');
+			sel.index = temp_index;
+			sel.card = $(this).html();
+			//Then update dom to display the selected card
+			$('#selector').html(sel.card);
+		}
+	});
+}
+
 
 var render = function(game){
 	clear();
@@ -156,6 +189,8 @@ var render = function(game){
 			//and a class of .card
 			$('#your_field').append("<div class='your_card card' id='your_field_" + i + "'>" + card + "</div>");
 		}
+		//Update event handlers for new dom elements
+		clicks();
 	}
 }
 
@@ -221,4 +256,25 @@ $('#shuffle').on('click', function(){
 	socket.get('/shuffle', {displayId: displayId}, function(res){
 		console.log(res);
 	});
+});
+
+//When user clicks their field, if they've selected a card,
+//request server to move selected card to their field
+$('#your_field').on('click', function(){
+	//Only continue if a card is selected
+	if (sel.card != '') {
+		//TODO: handle case where selected card was on your_field
+		if(sel.place === 'hand') {
+			dest.place = 'your_field';
+			console.log('Requesting to move_card');
+			//Make request to move_card, passing displayId of game, which player is requesting,
+			//The selector and the destination
+			socket.get('/move_card', {displayId: displayId, player: player_number, sel: sel, dest: dest}, function(res){
+				console.log(res);
+			});
+			//Clear selector and destination
+			sel.clear();
+			dest.clear();
+		}
+	}
 });
