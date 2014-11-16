@@ -8,17 +8,17 @@ console.log("Attached gameview.js");
 //ToDo: Create a selector and selector div
 //Selector will be used to pick a card that will be moved somewhere
 var Selector = function() {
-	//Represents which player's card is selected (in game.players[])
-	//this.player = 0;
-	//Represents where the player's card is ('hand' or 'field')
-	this.place = '';
-	//Represents the index of the selected card within a hand or field
-	this.index = 0;
-	//Represents the str content of the selected card (ie: c5)
-	this.card = '';
-}
-//Method on Selector that clears it
-Selector.prototype.clear = function(){
+		//Represents which player's card is selected (in game.players[])
+		//this.player = 0;
+		//Represents where the player's card is ('hand' or 'field')
+		this.place = '';
+		//Represents the index of the selected card within a hand or field
+		this.index = 0;
+		//Represents the str content of the selected card (ie: c5)
+		this.card = '';
+	}
+	//Method on Selector that clears it
+Selector.prototype.clear = function() {
 	//Clear the object attributes
 	//console.log("Clearing Selector");
 	this.place = '';
@@ -37,7 +37,7 @@ var Destination = function() {
 }
 
 //Method on Destination that clears it
-Destination.prototype.clear = function(){
+Destination.prototype.clear = function() {
 	//console.log("Clearing Destination");
 	this.place = '';
 	this.scuttle_index = 0;
@@ -95,7 +95,7 @@ var clicks = function() {
 	$('.op_field').off('click');
 
 	//When one of your cards is clicked, select it
-	$('.your_card').on('click', function(){
+	$('.your_card').on('click', function() {
 		//Deslect clicked card if it was already selected
 		if ($(this).html() === sel.card) {
 			console.log("Card was already selected; deselecting");
@@ -117,20 +117,68 @@ var clicks = function() {
 			$('#selector').html(sel.card);
 		}
 	});
+
+	//When user clicks a card on their opponent's field, if a card in your hand is selected,
+	//request to scuttle the opponent's card.
+	//Note that this event listener fires when an individual card is clicked,
+	//not the opponent's field
+	$('.op_field').on('click', function() {
+		console.log("Clicked opponent's field");
+		//Only continue if a card is selected
+		if (sel.card != '') {
+			console.log(sel.card + ' was selected');
+			//Check that selected card is in user's hand (a player may only scuttle from their hand)
+			if (sel.place === 'hand') {
+				var scuttle = confirm("Do you want to scuttle?");
+				//If user confirms intention to scuttle, set the destination and make request to scuttle
+				if (scuttle) {
+					//Make destination reflect that a scuttle is desired
+					dest.scuttle = true;
+					//Set the destination's place to opponent's field
+					dest.place = 'op_field';
+					//Get the index of the card to be scuttled on op_field
+					//First pull id from div
+					var str = $(this).prop('id');
+					console.log("got str id: " + str);
+					//Use regex to pull number from id and assign it to dest.scuttle_index
+					str = /\d/.exec(str);
+					//str is an array, str[0] is the index taken from the id
+					str = str[0];
+					//Convert string value index to integer
+					//Assign dest.scuttle_index to this value
+					dest.scuttle_index = parseInt(str);
+					console.log(dest.scuttle_index);
+
+					//Request to move card with selector and destination
+					//dest will reflect that this is a scuttle request
+					socket.get('/move_card', {
+						displayId: displayId,
+						player: player_number,
+						sel: sel,
+						dest: dest
+					}, function(res) {
+						//Log response. If request is valid, server will make changes and publish the update
+						console.log(res);
+					});
+
+				}
+			}
+		}
+	});
 }
 
 
-var render = function(game){
+var render = function(game) {
 	clear();
 	console.log("Rendering game:");
 	console.log(game);
 
 	//Check for players
-	if(game.players.length === 0) {
+	if (game.players.length === 0) {
 		console.log("No players");
-	//Check if we are player 0
+		//Check if we are player 0
 	} else {
-		if (game.players[0].socketId ===	socket.socket.sessionid){
+		if (game.players[0].socketId === socket.socket.sessionid) {
 			var player_index = 0;
 
 			//Capture local reference into player_number
@@ -138,7 +186,7 @@ var render = function(game){
 			console.log("We are player: " + player_index);
 			var op_index = 1;
 			console.log("They are player: " + op_index + '\n');
-		} else if(game.players[1].socketId === socket.socket.sessionid){
+		} else if (game.players[1].socketId === socket.socket.sessionid) {
 			var player_index = 1;
 			//Capture local reference into player_number
 			player_number = player_index;
@@ -218,18 +266,20 @@ socket.on('game', function(obj) {
 ///////////////////////////
 
 //Make request to server and render game when render button is clicked
-$('#render').on('click', function(){
+$('#render').on('click', function() {
 	console.log("Making request for game to render");
-	socket.get('/game/' + displayId, function(res){
+	socket.get('/game/' + displayId, function(res) {
 		console.log(res);
 		render(res.game);
 	});
 });
 
 //Request to draw a card when draw button is clicked
-$('#draw').on('click', function(){
+$('#draw').on('click', function() {
 	console.log("Requesting to draw card");
-	socket.get('/draw', {displayId: displayId}, function(res){
+	socket.get('/draw', {
+		displayId: displayId
+	}, function(res) {
 		console.log(res);
 		//Render game with response
 		//render(res.game);
@@ -237,39 +287,48 @@ $('#draw').on('click', function(){
 });
 
 //Request to deal hands when deal button is clicked
-$('#deal').on('click', function(){
+$('#deal').on('click', function() {
 	console.log('Requesting to deal');
 	//Make request for deal. Server should make changes, then
 	//respond with a json object {game: Game_Object}, which is
 	//logged. The server will also publish an update with
 	//the updated game, which will be used to render the changes
-	socket.get('/deal', {displayId: displayId}, function(res){
+	socket.get('/deal', {
+		displayId: displayId
+	}, function(res) {
 		console.log(res);
 		//render(res.game);
 	});
 });
 
 //Request to shuffle when shuffle button is clicked
-$('#shuffle').on('click', function(){
+$('#shuffle').on('click', function() {
 	console.log('Requesting Shuffle');
 	//Make request to shuffle deck
-	socket.get('/shuffle', {displayId: displayId}, function(res){
+	socket.get('/shuffle', {
+		displayId: displayId
+	}, function(res) {
 		console.log(res);
 	});
 });
 
 //When user clicks their field, if they've selected a card,
 //request server to move selected card to their field
-$('#your_field').on('click', function(){
+$('#your_field').on('click', function() {
 	//Only continue if a card is selected
 	if (sel.card != '') {
 		//TODO: handle case where selected card was on your_field
-		if(sel.place === 'hand') {
+		if (sel.place === 'hand') {
 			dest.place = 'your_field';
 			console.log('Requesting to move_card');
 			//Make request to move_card, passing displayId of game, which player is requesting,
 			//The selector and the destination
-			socket.get('/move_card', {displayId: displayId, player: player_number, sel: sel, dest: dest}, function(res){
+			socket.get('/move_card', {
+				displayId: displayId,
+				player: player_number,
+				sel: sel,
+				dest: dest
+			}, function(res) {
 				console.log(res);
 			});
 			//Clear selector and destination
