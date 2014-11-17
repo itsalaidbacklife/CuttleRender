@@ -44,9 +44,9 @@ Destination.prototype.clear = function() {
 	this.scuttle = false;
 }
 
-////////////////////////
-//Variable Definitions//
-////////////////////////
+///////////////////////////
+//Variable Instantiations//
+///////////////////////////
 
 //Get displayId of game from dom element rendered with displayId param or response in DisplayGameController.gotoGame
 var displayId = $('#displayId').html();
@@ -88,7 +88,6 @@ var clear = function() {
 
 //Clears and re-binds event hanlders for card clicks
 //Called during render function after new cards are rendered
-//TODO: Make this function update "Dest" when an #op_field is clicked
 var clicks = function() {
 	//Remove event hanlders for your_cards and op_field cards
 	$('.your_card').off('click');
@@ -242,6 +241,14 @@ var render = function(game) {
 	}
 }
 
+//Request to use a given card (specified by selector) in user's hand
+//for its one-off effect with a given target
+var one_off = function(selector, destination) {
+	if (sel.card != '') {
+
+	}
+}
+
 
 
 ////////////////
@@ -334,6 +341,38 @@ $('#your_field').on('click', function() {
 			//Clear selector and destination
 			sel.clear();
 			dest.clear();
+		}
+	}
+});
+
+//Requests to use the currently selected card as a one-off
+//TODO: Switch between possible cards and get
+//user input to determine the target index
+//TODO:Call one-off function here
+$('#one_off').on('click', function(){
+	console.log("Beginning request to push to stack");
+	if (sel.card != '') {
+		console.log(sel.card + " is selected");
+		console.log(sel.card[1]);
+		switch(parseInt(sel.card[1])){
+			//These are the cases where the one-off effect does not require a target index
+			case 1:
+			case 6:
+			case 7:
+				console.log("One-off target is global");
+				var caster_index = player_number;
+				var hand_index = sel.index;
+				socket.get('/push_stack', {
+					displayId: displayId, 
+					caster_index: caster_index, 
+					hand_index: hand_index
+					},
+					function(res){
+						console.log(res);
+					});
+				break;
+
+
 		}
 	}
 });

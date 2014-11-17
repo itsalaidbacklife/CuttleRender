@@ -60,6 +60,8 @@ module.exports.routes = {
 
   'GET /shuffle': 'GameController.shuffle',
 
-  'GET /move_card': 'GameController.move_card'
+  'GET /move_card': 'GameController.move_card',
+
+  'GET /push_stack': 'GameController.push_stack'
 
 };

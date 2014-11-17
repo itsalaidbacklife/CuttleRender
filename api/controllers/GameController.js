@@ -297,6 +297,60 @@ module.exports = {
 					});
 				});
 		}
+	},
+
+	//Adds one-off effect to game.stack and sends message players
+	//Providing opportunity to add to the stack in response
+	//TODO: Send message with game to everyone except player making the request
+	//TODO: Check that requesting user is in game before continuing
+	//TODO: Handle cases where target_index is provided
+	push_stack: function(req, res) {
+		console.log('Request made to push one-off to stack');
+		var params = req.body;
+		console.log(params);
+
+		//Check if request was made through socket (only valid if yes)
+		if (req.isSocket) {
+			//If a displayId was passed, use it to find the relevant game
+			if (params.displayId) {
+				//Find the game and populate its players and stack
+				Game.findOne({displayId: params.displayId}).populate('players').populate('stack').exec(
+				function(err, game){
+					//Catch error if game not found
+					if (err || !game){
+						console.log("Game not found.");
+					}
+
+					//Check if the target_index was passed. If not, check that the one-of
+					//is a 1, 6, or 7
+					else if (!(params.hasOwnProperty("target_index") )) {
+						if (params.hasOwnProperty("hand_index") && params.hasOwnProperty("caster_index") ) {
+							//Check if it is the requesting user's turn
+							if (params.caster_index === game.turn % 2) {
+								console.log("Correct player wants to play one-off");
+								//If so, create a new one-off effect for them
+								OneOff.create({
+									game: game,
+									caster_index: params.caster_index,
+									hand_index: params.hand_index
+								}).exec(function(err, one_off){
+									if (err || !one_off) {
+										console.log("Error. One-off not created");
+									}else {
+										console.log(one_off);
+										game.turn++;
+										game.save();
+									}
+								});
+							}else{
+								console.log("Wrong player trying to play one-off");
+								res.send(game);
+							}
+						}
+					}
+				});				
+			}
+		}
 	}
 
 };

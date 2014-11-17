@@ -74,6 +74,11 @@ module.exports = {
 			defaultsTo: 0
 		},
 
+		stack: {
+			collection: 'oneoff',
+			via: 'game'
+		}
+
 	},
 	//Turn of automatic generation of primary key (id) for Games, as they will be found via their displayId,
 	//corresponding to their DisplayGame

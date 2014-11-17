@@ -8,6 +8,12 @@
 module.exports = {
 
 	attributes: {
+		//Current game player is playing
+		currentGame: {
+			model: 'game',
+			required: true
+		},
+
 		//Boolean representing whether player is p1
 		isPlayerOne: {
 			type: 'boolean',
@@ -30,12 +36,7 @@ module.exports = {
 		socketId: {
 			type: 'string',
 			defaultsTo: ''
-		},
-
-		//Current game player is playing
-		currentGame: {
-			model: 'game',
-			required: true
 		}
+
 	}
 };

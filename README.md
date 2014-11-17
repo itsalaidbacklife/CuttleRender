@@ -12,6 +12,9 @@ PREVIOUS:
 -Prevented users from entering closed games
 
 TODO:
--Fix deal method to reset game
 -Enable the one-offs
+	-Began push_stack action
+		-Handling cases 1, 6 & 7
+		-Need to reply to other player(s) after one-off is appended to stack
+-Fix deal method to reset game
 -WHERE THE FUCK IS GAMEVIEW.JS
