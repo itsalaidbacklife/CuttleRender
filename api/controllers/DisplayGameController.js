@@ -79,7 +79,7 @@ module.exports = {
 				return res.send('Game not found!');
 				console.log('Game not found!');
 			//Only subscribe user if game is open
-			} else if (game.status == true) {
+			} else if (game.status === true) {
 				var game_is_open = game.status;
 
 				//Create new Player

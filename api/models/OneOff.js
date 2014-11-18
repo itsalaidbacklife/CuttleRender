@@ -28,8 +28,14 @@ module.exports = {
   	//Index of one-off within its player's hand
   	hand_index: {
   		type: 'integer',
-  		required: 'true'
+  		required: true
   	},
+
+    //String representing the card being played
+    card: {
+      type: 'string',
+      required: true
+    },
 
   	//Index of the target (either which card in their hand, which player, or which card on field)
   	target_index: {

@@ -316,6 +316,8 @@ module.exports = {
 				//Find the game and populate its players and stack
 				Game.findOne({displayId: params.displayId}).populate('players').populate('stack').exec(
 				function(err, game){
+					console.log("Logging stack");
+					console.log(game.stack);
 					//Catch error if game not found
 					if (err || !game){
 						console.log("Game not found.");
@@ -325,14 +327,15 @@ module.exports = {
 					//is a 1, 6, or 7
 					else if (!(params.hasOwnProperty("target_index") )) {
 						if (params.hasOwnProperty("hand_index") && params.hasOwnProperty("caster_index") ) {
-							//Check if it is the requesting user's turn
-							if (params.caster_index === game.turn % 2) {
+							//Check if it is the requesting user's turn and that they are in the game
+							if ( (params.caster_index === game.turn % 2) && game.players[params.caster_index].socketId == req.socket.id) {
 								console.log("Correct player wants to play one-off");
 								//If so, create a new one-off effect for them
 								OneOff.create({
 									game: game,
 									caster_index: params.caster_index,
-									hand_index: params.hand_index
+									hand_index: params.hand_index,
+									card: game.players[params.caster_index].hand[params.hand_index]
 								}).exec(function(err, one_off){
 									if (err || !one_off) {
 										console.log("Error. One-off not created");
@@ -340,6 +343,9 @@ module.exports = {
 										console.log(one_off);
 										game.turn++;
 										game.save();
+										//Notify all users subscribed to this game (except one making request)
+										//of the one_off added to the stack and 
+										Game.message(game, {one_off: one_off}, req);
 									}
 								});
 							}else{

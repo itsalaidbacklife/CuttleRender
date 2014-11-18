@@ -16,7 +16,7 @@ var Selector = function() {
 		this.index = 0;
 		//Represents the str content of the selected card (ie: c5)
 		this.card = '';
-	}
+	};
 	//Method on Selector that clears it
 Selector.prototype.clear = function() {
 	//Clear the object attributes
@@ -26,7 +26,7 @@ Selector.prototype.clear = function() {
 	this.card = '';
 	//Clear the dom element representing the selector
 	$('#selector').html('');
-}
+};
 
 var Destination = function() {
 	//Represents whether the card is moving to a hand, field, scrap or scuttle
@@ -34,7 +34,7 @@ var Destination = function() {
 	this.scuttle = false;
 	//If the card is scuttling, represents where the card to be scuttled is found
 	this.scuttle_index = 0;
-}
+};
 
 //Method on Destination that clears it
 Destination.prototype.clear = function() {
@@ -42,7 +42,7 @@ Destination.prototype.clear = function() {
 	this.place = '';
 	this.scuttle_index = 0;
 	this.scuttle = false;
-}
+};
 
 ///////////////////////////
 //Variable Instantiations//
@@ -84,7 +84,7 @@ var clear = function() {
 	//Clear your hand
 	$('#your_hand').html("<p>Your Hand</p>");
 
-}
+};
 
 //Clears and re-binds event hanlders for card clicks
 //Called during render function after new cards are rendered
@@ -109,6 +109,7 @@ var clicks = function() {
 			var match = /\_([^()]*)\_/.exec(temp_index);
 			var place = match[1];
 			sel.place = place;
+			//Replaces every non-integer char in temp_index with an empty char (isolates the index from id)
 			temp_index = temp_index.replace(/[^\d]/g, '');
 			sel.index = temp_index;
 			sel.card = $(this).html();
@@ -124,7 +125,7 @@ var clicks = function() {
 	$('.op_field').on('click', function() {
 		console.log("Clicked opponent's field");
 		//Only continue if a card is selected
-		if (sel.card != '') {
+		if (sel.card !== '') {
 			console.log(sel.card + ' was selected');
 			//Check that selected card is in user's hand (a player may only scuttle from their hand)
 			if (sel.place === 'hand') {
@@ -164,7 +165,7 @@ var clicks = function() {
 			}
 		}
 	});
-}
+};
 
 
 var render = function(game) {
@@ -239,16 +240,7 @@ var render = function(game) {
 		//Update event handlers for new dom elements
 		clicks();
 	}
-}
-
-//Request to use a given card (specified by selector) in user's hand
-//for its one-off effect with a given target
-var one_off = function(selector, destination) {
-	if (sel.card != '') {
-
-	}
-}
-
+};
 
 
 ////////////////
@@ -259,13 +251,47 @@ socket.on('game', function(obj) {
 	console.log(obj.verb);
 
 	//If the event was an update, log the changes
-	//ToDo: Change render function to take a game object param
+	//TODO: change messaged case to only accept cards in your_hand
+	//TODO: straighten out cases for different one-offs
 	if (obj.verb == 'updated') {
 		console.log('Game was updated. Logging data: ');
 		console.log(obj.data);
 		//Render the game using the game from server
 		render(obj.data.game);
+	//Server will send message if opponent plays a one-off. Client then gives user chance to counter
+	//by playing a 2 as a one-off
+	}else if (obj.verb == 'messaged') {
+		console.log('Received message from server: ');
+		console.log(obj.data);
+		var response = confirm("Opponent has played " + obj.data.one_off.card + " as a one-off. Would you like to counter with a 2?");
+		if (response) {
+			//TODO: Make this a function and call it here
+			//TODO: Make socket call to collapse_stack if !response
+			alert("Please click the 2 you wish to use to counter");
+			$('.your_card').off('click');
+			$('.your_card').on('click', function(){
+				var card = $(this).html();
+				//User's card choice to counter is only valid if they choose a 2
+				if (card[1] === '2') {
+					//Capture id of clicked div, then use regex to isolate the index of the card
+					var temp_index = $(this).prop('id');
+					//Replace all non-integer chars in temp_index with ''
+					temp_index = temp_index.replace(/[^\d]/g, '');
+					socket.get('/push_stack', {
+						displayId: displayId,
+						caster_index: player_number,
+						hand_index: temp_index
+					}, function(res){
+						clicks();
+						console.log(res);
+					});
+				}
+
+
+			});
+		}
 	}
+
 });
 
 ///////////////////////////
@@ -323,7 +349,7 @@ $('#shuffle').on('click', function() {
 //request server to move selected card to their field
 $('#your_field').on('click', function() {
 	//Only continue if a card is selected
-	if (sel.card != '') {
+	if (sel.card !== '') {
 		//TODO: handle case where selected card was on your_field
 		if (sel.place === 'hand') {
 			dest.place = 'your_field';
@@ -351,7 +377,7 @@ $('#your_field').on('click', function() {
 //TODO:Call one-off function here
 $('#one_off').on('click', function(){
 	console.log("Beginning request to push to stack");
-	if (sel.card != '') {
+	if (sel.card !== '') {
 		console.log(sel.card + " is selected");
 		console.log(sel.card[1]);
 		switch(parseInt(sel.card[1])){
