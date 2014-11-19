@@ -17,6 +17,10 @@ TODO:
 -Enable the one-offs
 	-Began push_stack action
 		-Handling cases 1, 6 & 7
+	-push_stack is ostensibly completed
+	-NEXT: Begin collapse_stack
+
 
 -Fix deal method to reset game
+
 -WHERE THE FUCK IS GAMEVIEW.JS

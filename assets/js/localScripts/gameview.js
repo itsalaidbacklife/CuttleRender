@@ -389,6 +389,9 @@ $('#one_off').on('click', function() {
 		switch (parseInt(sel.card[1])) {
 			//These are the cases where the one-off effect does not require a target index
 			case 1:
+			case 3:
+			case 4:
+			case 5:
 			case 6:
 			case 7:
 				console.log("One-off target is global");
@@ -403,8 +406,41 @@ $('#one_off').on('click', function() {
 						console.log(res);
 					});
 				break;
+			//These are the cases where the one-off effect requires a target card on the opponent's field
+			case 2:
+			case 9:
+				console.log("One-off requires a permanent target");
+				var caster_index = player_number;
+				var hand_index = sel.index;
+				alert("Please select a target on your opponent's field.");
+				//Remove event handlers for op_field cards and create a new one
+				//to capture the target index for the push_stack request
+				$('.op_field').off('click');
+				$('.op_field').on('click', function(){
+					//Get the index of the target card on op_field
+					//First pull id from clicked card div
+					var str = $(this).prop('id');
+					console.log("got str id: " + str);
+					//Use regex to pull number from id and assign it to target_index
+					str = /\d/.exec(str);
+					//str is an array, str[0] is the index taken from the id
+					str = str[0];
+					//Convert string value index to integer
+					//Assign target_index to this value
+					var target_index = parseInt(str);
 
-
+					//Make socket request to push_stack with target_index
+					socket.get('/push_stack', {
+						displayId: displayId,
+						caster_index: caster_index,
+						hand_index: hand_index,
+						target_index: target_index
+					}, function(res){
+						console.log(res);
+					});
+					//Rebind event handlers for .op_field
+					clicks();
+				});
 		}
 	}
 });

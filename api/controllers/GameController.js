@@ -301,6 +301,7 @@ module.exports = {
 
 	//Adds one-off effect to game.stack and sends message players
 	//Providing opportunity to add to the stack in response
+	//NOTE: This does not incriment the turn, that happens when collapse_stack fires 
 	//TODO: Send message with game to everyone except player making the request
 	//TODO: Check that requesting user is in game before continuing
 	//TODO: Handle cases where target_index is provided
@@ -329,17 +330,51 @@ module.exports = {
 
 						//Check if the target_index was passed. If not, check that the one-of
 						//is a 1, 6, or 7
-						else if (!(params.hasOwnProperty("target_index"))) {
-							if (params.hasOwnProperty("hand_index") && params.hasOwnProperty("caster_index")) {
+						else if (params.hasOwnProperty("hand_index") && params.hasOwnProperty("caster_index")) {
 								//Check if it is the requesting user's turn and that they are in the game
-								if ((params.caster_index === game.turn % 2) && game.players[params.caster_index].socketId == req.socket.id) {
+							if ((params.caster_index === game.turn % 2) && game.players[params.caster_index].socketId == req.socket.id) {
 									console.log("Correct player wants to play one-off");
+								if (!(params.hasOwnProperty("target_index"))) {
 									//If so, create a new one-off effect for them
 									OneOff.create({
 										game: game,
 										caster_index: params.caster_index,
 										hand_index: params.hand_index,
 										card: game.players[params.caster_index].hand[params.hand_index]
+									}).exec(function(err, one_off) {
+										if (err || !one_off) {
+											console.log("Error. One-off not created");
+										} else {
+											console.log(one_off);
+											//Place the card being played (as a one-off) in the scrap pile
+											var temp_card = game.players[params.caster_index].hand[params.hand_index];
+											//Switch the hand[0] with hand[hand_index]
+											game.players[params.caster_index].hand[params.hand_index] = game.players[params.caster_index].hand[0];
+											game.players[params.caster_index].hand[0] = temp_card;
+											//Shift one-off into the scrap pile
+											game.scrap[game.scrap.length] = game.players[params.caster_index].hand.shift();
+											//Save changes
+											game.save();
+											//Update all users playing this game of the changes
+											Game.publishUpdate(params.displayId, {
+												game: game
+											});
+											//Notify all users subscribed to this game (except one making request)
+											//of the one_off added to the stack and 
+											Game.message(game, {
+												one_off: one_off
+											}, req);
+										}
+									});
+								//Else a target index was given
+								} else {
+									//If so, create a new one-off effect for them
+									OneOff.create({
+										game: game,
+										caster_index: params.caster_index,
+										hand_index: params.hand_index,
+										card: game.players[params.caster_index].hand[params.hand_index],
+										target_index: params.target_index
 									}).exec(function(err, one_off) {
 										if (err || !one_off) {
 											console.log("Error. One-off not created");
@@ -366,11 +401,12 @@ module.exports = {
 												one_off: one_off
 											}, req);
 										}
-									});
-								} else {
+									});									
+								}
+							//Else: the user is not in that game, or it is not their turn 
+							} else {
 									console.log("Wrong player trying to play one-off");
 									res.send(game);
-								}
 							}
 						}
 					});
