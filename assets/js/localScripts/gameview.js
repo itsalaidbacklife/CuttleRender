@@ -5,19 +5,18 @@ console.log("Attached gameview.js");
 //Object & Method Definitions//
 ///////////////////////////////
 
-//ToDo: Create a selector and selector div
 //Selector will be used to pick a card that will be moved somewhere
 var Selector = function() {
-		//Represents which player's card is selected (in game.players[])
-		//this.player = 0;
-		//Represents where the player's card is ('hand' or 'field')
-		this.place = '';
-		//Represents the index of the selected card within a hand or field
-		this.index = 0;
-		//Represents the str content of the selected card (ie: c5)
-		this.card = '';
-	};
-	//Method on Selector that clears it
+	//Represents which player's card is selected (in game.players[])
+	//this.player = 0;
+	//Represents where the player's card is ('hand' or 'field')
+	this.place = '';
+	//Represents the index of the selected card within a hand or field
+	this.index = 0;
+	//Represents the str content of the selected card (ie: c5)
+	this.card = '';
+};
+//Method on Selector that clears it
 Selector.prototype.clear = function() {
 	//Clear the object attributes
 	//console.log("Clearing Selector");
@@ -167,7 +166,36 @@ var clicks = function() {
 	});
 };
 
+var one_off_res = function() {
+	//TODO: Make socket call to collapse_stack if !response
+	$('.your_card').off('click');
+	$('.your_card').on('click', function() {
+		var card = $(this).html();
+		//User's card choice to counter is only valid if they choose a 2
+		if (card[1] === '2') {
+			//Capture id of clicked div, then use regex to isolate the index of the card
+			var temp_index = $(this).prop('id');
+			//Replace all non-integer chars in temp_index with ''
+			temp_index = temp_index.replace(/[^\d]/g, '');
+			socket.get('/push_stack', {
+				displayId: displayId,
+				caster_index: player_number,
+				hand_index: temp_index
+			}, function(res) {
+				clicks();
+				console.log(res);
+			});
+		} else {
+			alert("You may only counter a one-off with a 2!");
+			var counter = confirm("Would you like to counter Opponent's one-off with a 2?");
+			if (counter) {
+				one_off_res();
+			}
+		}
+	});
+};
 
+//TODO: Render the stack 
 var render = function(game) {
 	clear();
 	console.log("Rendering game:");
@@ -258,37 +286,15 @@ socket.on('game', function(obj) {
 		console.log(obj.data);
 		//Render the game using the game from server
 		render(obj.data.game);
-	//Server will send message if opponent plays a one-off. Client then gives user chance to counter
-	//by playing a 2 as a one-off
-	}else if (obj.verb == 'messaged') {
+		//Server will send message if opponent plays a one-off. Client then gives user chance to counter
+		//by playing a 2 as a one-off
+	} else if (obj.verb == 'messaged') {
 		console.log('Received message from server: ');
 		console.log(obj.data);
 		var response = confirm("Opponent has played " + obj.data.one_off.card + " as a one-off. Would you like to counter with a 2?");
 		if (response) {
-			//TODO: Make this a function and call it here
-			//TODO: Make socket call to collapse_stack if !response
 			alert("Please click the 2 you wish to use to counter");
-			$('.your_card').off('click');
-			$('.your_card').on('click', function(){
-				var card = $(this).html();
-				//User's card choice to counter is only valid if they choose a 2
-				if (card[1] === '2') {
-					//Capture id of clicked div, then use regex to isolate the index of the card
-					var temp_index = $(this).prop('id');
-					//Replace all non-integer chars in temp_index with ''
-					temp_index = temp_index.replace(/[^\d]/g, '');
-					socket.get('/push_stack', {
-						displayId: displayId,
-						caster_index: player_number,
-						hand_index: temp_index
-					}, function(res){
-						clicks();
-						console.log(res);
-					});
-				}
-
-
-			});
+			one_off_res();
 		}
 	}
 
@@ -375,12 +381,12 @@ $('#your_field').on('click', function() {
 //TODO: Switch between possible cards and get
 //user input to determine the target index
 //TODO:Call one-off function here
-$('#one_off').on('click', function(){
+$('#one_off').on('click', function() {
 	console.log("Beginning request to push to stack");
 	if (sel.card !== '') {
 		console.log(sel.card + " is selected");
 		console.log(sel.card[1]);
-		switch(parseInt(sel.card[1])){
+		switch (parseInt(sel.card[1])) {
 			//These are the cases where the one-off effect does not require a target index
 			case 1:
 			case 6:
@@ -389,11 +395,11 @@ $('#one_off').on('click', function(){
 				var caster_index = player_number;
 				var hand_index = sel.index;
 				socket.get('/push_stack', {
-					displayId: displayId, 
-					caster_index: caster_index, 
-					hand_index: hand_index
+						displayId: displayId,
+						caster_index: caster_index,
+						hand_index: hand_index
 					},
-					function(res){
+					function(res) {
 						console.log(res);
 					});
 				break;
