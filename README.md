@@ -4,6 +4,9 @@ a [Sails](http://sailsjs.org) application
 
 PREVIOUS:
 -Began collapse_stack
+	-destroyAllPoints() completed
+	-collapse_stack now deletes the one-off after  running chooseEffect()
+	-collapse_stack now properly iterates through each one-off in game.stack
 	-Created functions destroyAllPoints() and chooseEffect()
 	-Created game.rules
 		-only default value atm: game.rules.ace = 'destroyAllPoints'
@@ -28,8 +31,7 @@ PREVIOUS:
 TODO:
 -Enable the one-offs
 	-collapse_stack
-		-NEXT: Finish destroyAllPoints()
-		-THEN: Make each effect function and tie them to their string in chooseEffect
+		-Next: Create effects for 2's
 		-Action now exists and is called when a user declines countering a new one-off with a two
 		-collapse_stack currently calls a test function that at top of GameController
 		-Make a unique function for each one-off

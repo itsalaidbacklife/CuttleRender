@@ -16,11 +16,64 @@
 //By Default it is bound to the ACE
 var destroyAllPoints = function(game) {
 	console.log("Destroying all points in game " + game.displayId);
+	var p0FieldLength = game.players[0].field.length;
+	var p1FieldLength = game.players[1].field.length;
+
+	//Int representing the number of cards that have been moved from p0's field
+	//When we remove a given element from game.players[0].field, we will need to offset
+	//the index i
+	var p0Counter = 0;
+
+	//Int representing the number of cards that have been moved from p1's field
+	var p1Counter = 0;
+	//Array containing indicies of cards on p0's field to be moved to scrap pile
+
+	//Check which field is longer to determine the length of the loop
+	//that will remove the point cards
+	if (p0FieldLength >= p1FieldLength) {
+		var longest = p0FieldLength;
+	} else {
+		var longest = p1FieldLength;
+	}
+	//Iterate through the fields of both players and remove their point-cards
+	for (i = 0; i < longest; i++) {
+
+		//Check if we have looped through all of p0's field, yet.
+		if (i - p0Counter < game.players[0].field.length) {
+			//Check if the card rank (specified by the card[1] is a number)
+			if (['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T'].indexOf( (game.players[0].field[i - p1Counter][1]) > -1) ) {
+				console.log("p0's card is a number: " + game.players[0].field[i - p0Counter]);
+
+				//If so, move card from field to scrap
+				game.scrap[game.scrap.length] = game.players[0].field.splice([i - p0Counter], 1)[0];
+				//Then incriment p0Counter to keep track of where next element will now be found
+				p0Counter++;
+			}
+		}
+
+		//Check that we have not looped through all of p1's field
+		if (i - p1Counter < game.players[1].field.length) {
+			//If the card is a number card, append its index to p1Indicies. This will be used to remove the card
+			if (['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T'].indexOf( (game.players[1].field[i - p1Counter][1]) > -1) ) {
+				console.log("p1's card is a number: " + game.players[1].field[i - p1Counter]);
+
+				//If there are still unchecked cards on p1's field
+				//If so, move card from field to scrap
+				game.scrap[game.scrap.length] = game.players[1].field.splice([i - p1Counter], 1)[0];
+				//Then incriment p1Counter, to keep track of where next element can now be found 
+				//(indicies shift after a card is removed)
+				p1Counter++;
+			}
+		}
+	}
 };
 
-var foo = function() {
-	console.log("This is foo");
-};
+///////////////////////////
+//chooseEffect() Function//
+///////////////////////////
+/*
+ *This function performs a one-off effect on a game
+ */
 
 //This function takes a game and a string (representing which effect is to be executed within chosen game)
 var chooseEffect = function(game, str) {
@@ -29,7 +82,6 @@ var chooseEffect = function(game, str) {
 		case 'destroyAllPoints':
 			destroyAllPoints(game);
 			break;
-		Default
 	}
 };
 
@@ -448,7 +500,7 @@ module.exports = {
 	collapse_stack: function(req, res) {
 		console.log("Request made to collapse the stack");
 		var params = req.body;
-		console.log(params);
+		//console.log(params);
 
 		//Check that request was made through socket (otherwise it is invalid)
 		if (req.isSocket) {
@@ -465,20 +517,32 @@ module.exports = {
 							res.send("Game not found");
 							//Check that requesting user is in the requested game
 						} else if (req.socket.id === game.players[0].socketId || req.socket.id === game.players[1].socketId) {
-							foo();
-							//Switch based on card at top of stack,
-							//Then capture the rule associated with that card in game.rules
-							switch (game.stack[game.stack.length - 1].card[1]) {
-								case '1':
-									console.log("Last card in stack is an Ace");
-									//Pull the name of the rule from game.rules
-									var str = game.rules.ace;
-									//Use the str representing the rule to choose which
-									//effect to perform on the requested game
-									chooseEffect(game, str);
-									game.save();
-									break;
-							}
+							game.stack.forEach(
+							function(one_off, index, arr){
+								console.log(one_off);
+								//Switch based on card at top of stack,
+								//Then capture the rule associated with that card in game.rules
+								switch (one_off.card[1]) {
+									case '1':
+										console.log("Last card in stack is an Ace");
+										//Pull the name of the rule from game.rules
+										var str = game.rules.ace;
+										//Use the str representing the rule to choose which
+										//effect to perform on the requested game
+										chooseEffect(game, str);
+										break;
+								}
+
+								//After running chooseEffect(), delete the one-off corresponding
+								//to the effect just executed
+								OneOff.destroy(one_off.id, function(res){
+									console.log(res);
+								});
+								console.log(game.stack);
+								//Then save changes and publish the update
+								game.save();
+								Game.publishUpdate(params.displayId, {game: game});
+							});
 
 						}
 					});
