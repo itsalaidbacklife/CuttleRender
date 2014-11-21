@@ -77,6 +77,14 @@ module.exports = {
 		stack: {
 			collection: 'oneoff',
 			via: 'game'
+		},
+
+		//A json object representing which effect each card will have
+		rules: {
+			type: 'json',
+			defaultsTo: {
+				ace: 'destroyAllPoints'
+			}
 		}
 
 	},

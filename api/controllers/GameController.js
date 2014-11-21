@@ -5,8 +5,32 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
+///////////////////
+//One-Off Effects//
+///////////////////
+/*
+ * These are functions that take a game object and perform an effect to it
+ */
+
+//This function destroys all the points on the field of a game, passed as a parameter
+//By Default it is bound to the ACE
+var destroyAllPoints = function(game) {
+	console.log("Destroying all points in game " + game.displayId);
+};
+
 var foo = function() {
 	console.log("This is foo");
+};
+
+//This function takes a game and a string (representing which effect is to be executed within chosen game)
+var chooseEffect = function(game, str) {
+	console.log("Choosing effect: " + str);
+	switch (str) {
+		case 'destroyAllPoints':
+			destroyAllPoints(game);
+			break;
+		Default
+	}
 };
 
 module.exports = {
@@ -442,6 +466,20 @@ module.exports = {
 							//Check that requesting user is in the requested game
 						} else if (req.socket.id === game.players[0].socketId || req.socket.id === game.players[1].socketId) {
 							foo();
+							//Switch based on card at top of stack,
+							//Then capture the rule associated with that card in game.rules
+							switch (game.stack[game.stack.length - 1].card[1]) {
+								case '1':
+									console.log("Last card in stack is an Ace");
+									//Pull the name of the rule from game.rules
+									var str = game.rules.ace;
+									//Use the str representing the rule to choose which
+									//effect to perform on the requested game
+									chooseEffect(game, str);
+									game.save();
+									break;
+							}
+
 						}
 					});
 			}

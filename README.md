@@ -4,6 +4,12 @@ a [Sails](http://sailsjs.org) application
 
 PREVIOUS:
 -Began collapse_stack
+	-Created functions destroyAllPoints() and chooseEffect()
+	-Created game.rules
+		-only default value atm: game.rules.ace = 'destroyAllPoints'
+		-collapse_stack now switches based on the card at the top of the stack
+			-Uses this to pick which rule to apply
+			-Then runs chooseEffect on the game with the given rule string
 	-test function foo() at top of GameController executed SUCCESSFULLY
 -Began push_stack action
 	-Handling cases 1, 3, 4, 5, 6 & 7
@@ -22,6 +28,8 @@ PREVIOUS:
 TODO:
 -Enable the one-offs
 	-collapse_stack
+		-NEXT: Finish destroyAllPoints()
+		-THEN: Make each effect function and tie them to their string in chooseEffect
 		-Action now exists and is called when a user declines countering a new one-off with a two
 		-collapse_stack currently calls a test function that at top of GameController
 		-Make a unique function for each one-off
