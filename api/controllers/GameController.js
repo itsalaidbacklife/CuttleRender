@@ -5,6 +5,10 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
+var foo = function() {
+	console.log("This is foo");
+};
+
 module.exports = {
 	draw: function(req, res) {
 		console.log("Draw request made");
@@ -331,9 +335,12 @@ module.exports = {
 						//Check if the target_index was passed. If not, check that the one-of
 						//is a 1, 6, or 7
 						else if (params.hasOwnProperty("hand_index") && params.hasOwnProperty("caster_index")) {
-								//Check if it is the requesting user's turn and that they are in the game
-							if ((params.caster_index === game.turn % 2) && game.players[params.caster_index].socketId == req.socket.id) {
-									console.log("Correct player wants to play one-off");
+							//Check that requesting user is in requested game and that either 
+							//   1) It's requesting user's turn,
+							//   OR
+							// 	 2) the stack is nonempty and the requested one-off is a 2
+							if (((params.caster_index === game.turn % 2) || (game.stack.length !== 0 && game.players[params.caster_index].hand[params.hand_index][1] === '2')) && game.players[params.caster_index].socketId == req.socket.id) {
+								console.log("Correct player wants to play one-off");
 								if (!(params.hasOwnProperty("target_index"))) {
 									//If so, create a new one-off effect for them
 									OneOff.create({
@@ -366,7 +373,7 @@ module.exports = {
 											}, req);
 										}
 									});
-								//Else a target index was given
+									//Else a target index was given
 								} else {
 									//If so, create a new one-off effect for them
 									OneOff.create({
@@ -401,13 +408,40 @@ module.exports = {
 												one_off: one_off
 											}, req);
 										}
-									});									
+									});
 								}
-							//Else: the user is not in that game, or it is not their turn 
+								//Else: the user is not in that game, or it is not their turn 
 							} else {
-									console.log("Wrong player trying to play one-off");
-									res.send(game);
+								console.log("Wrong player trying to play one-off");
+								res.send(game);
 							}
+						}
+					});
+			}
+		}
+	},
+
+	collapse_stack: function(req, res) {
+		console.log("Request made to collapse the stack");
+		var params = req.body;
+		console.log(params);
+
+		//Check that request was made through socket (otherwise it is invalid)
+		if (req.isSocket) {
+			//Check that request included a displayId of the game being played
+			if (params.hasOwnProperty('displayId')) {
+				//Find the requested game
+				Game.findOne({
+					displayId: params.displayId
+				}).populate('players').populate('stack').exec(
+					function(err, game) {
+						//Check that game was found
+						if (err || !game) {
+							console.log("Game not found");
+							res.send("Game not found");
+							//Check that requesting user is in the requested game
+						} else if (req.socket.id === game.players[0].socketId || req.socket.id === game.players[1].socketId) {
+							foo();
 						}
 					});
 			}

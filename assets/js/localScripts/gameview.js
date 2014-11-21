@@ -295,6 +295,12 @@ socket.on('game', function(obj) {
 		if (response) {
 			alert("Please click the 2 you wish to use to counter");
 			one_off_res();
+		} else {
+			//If the user does not wish to counter with a 2, request server to collapse stack
+			//This will resolve the effects in their appropriate order
+			socket.get('/collapse_stack', {
+				displayId: displayId
+			});
 		}
 	}
 
@@ -406,7 +412,7 @@ $('#one_off').on('click', function() {
 						console.log(res);
 					});
 				break;
-			//These are the cases where the one-off effect requires a target card on the opponent's field
+				//These are the cases where the one-off effect requires a target card on the opponent's field
 			case 2:
 			case 9:
 				console.log("One-off requires a permanent target");
@@ -416,7 +422,7 @@ $('#one_off').on('click', function() {
 				//Remove event handlers for op_field cards and create a new one
 				//to capture the target index for the push_stack request
 				$('.op_field').off('click');
-				$('.op_field').on('click', function(){
+				$('.op_field').on('click', function() {
 					//Get the index of the target card on op_field
 					//First pull id from clicked card div
 					var str = $(this).prop('id');
@@ -435,7 +441,7 @@ $('#one_off').on('click', function() {
 						caster_index: caster_index,
 						hand_index: hand_index,
 						target_index: target_index
-					}, function(res){
+					}, function(res) {
 						console.log(res);
 					});
 					//Rebind event handlers for .op_field
