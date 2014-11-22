@@ -26,7 +26,6 @@ var destroyAllPoints = function(game) {
 
 	//Int representing the number of cards that have been moved from p1's field
 	var p1Counter = 0;
-	//Array containing indicies of cards on p0's field to be moved to scrap pile
 
 	//Check which field is longer to determine the length of the loop
 	//that will remove the point cards
@@ -41,7 +40,7 @@ var destroyAllPoints = function(game) {
 		//Check if we have looped through all of p0's field, yet.
 		if (i - p0Counter < game.players[0].field.length) {
 			//Check if the card rank (specified by the card[1] is a number)
-			if (['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T'].indexOf( (game.players[0].field[i - p1Counter][1]) > -1) ) {
+			if (['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T'].indexOf( (game.players[0].field[i - p0Counter][1])) > -1 ) {
 				console.log("p0's card is a number: " + game.players[0].field[i - p0Counter]);
 
 				//If so, move card from field to scrap
@@ -54,7 +53,7 @@ var destroyAllPoints = function(game) {
 		//Check that we have not looped through all of p1's field
 		if (i - p1Counter < game.players[1].field.length) {
 			//If the card is a number card, append its index to p1Indicies. This will be used to remove the card
-			if (['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T'].indexOf( (game.players[1].field[i - p1Counter][1]) > -1) ) {
+			if (['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T'].indexOf((game.players[1].field[i - p1Counter][1])) > -1 ) {
 				console.log("p1's card is a number: " + game.players[1].field[i - p1Counter]);
 
 				//If there are still unchecked cards on p1's field
@@ -67,6 +66,68 @@ var destroyAllPoints = function(game) {
 		}
 	}
 };
+
+//This function destroys all of the non-point cards on both players' fields
+//in a game, passed as a parameter
+//By default, this function is bound to SIX
+var destroyAllFaces = function(game) {
+	console.log("Destroying all face cards in game " + game.displayId);
+	var p0FieldLength = game.players[0].field.length;
+	var p1FieldLength = game.players[1].field.length;
+
+	//Int representing the number of cards that have been moved from p0's field
+	//When we remove a given element from game.players[0].field, we will need to offset
+	//the index i
+	var p0Counter = 0;
+
+	//Int representing the number of cards that have been moved from p1's field
+	var p1Counter = 0;
+
+	//Check which field is longer to determine the length of the loop
+	//that will remove the point cards
+	if (p0FieldLength >= p1FieldLength) {
+		var longest = p0FieldLength;
+	} else {
+		var longest = p1FieldLength;
+	}
+	//Iterate through the fields of both players and remove their point-cards
+	for (i = 0; i < longest; i++) {
+
+		//Check if we have looped through all of p0's field, yet.
+		if (i - p0Counter < game.players[0].field.length) {
+			//Check if the card rank (specified by the card[1] is a face card)
+			if (['J', 'Q', 'K'].indexOf(game.players[0].field[i - p0Counter][1]) > -1)  {
+				console.log("p0's card is a face card: " + game.players[0].field[i - p0Counter]);
+				console.log(['J', 'Q', 'K'].indexOf( (game.players[0].field[i - p0Counter][1]) ) );
+				console.log(['J', 'Q', 'K'].indexOf( (game.players[0].field[i - p0Counter][1]) )  > -1);
+
+
+				//If so, move card from field to scrap
+				game.scrap[game.scrap.length] = game.players[0].field.splice([i - p0Counter], 1)[0];
+				//Then incriment p0Counter to keep track of where next element will now be found
+				p0Counter++;
+			}
+		}
+
+		//Check that we have not looped through all of p1's field
+		if (i - p1Counter < game.players[1].field.length) {
+			//If the card is a face card, append its index to p1Indicies. This will be used to remove the card
+			if (['J', 'Q', 'K'].indexOf( game.players[1].field[i - p1Counter][1]) > -1 ) {
+				console.log("p1's card is a face card: " + game.players[1].field[i - p1Counter]);
+				console.log(['J', 'Q', 'K'].indexOf( (game.players[1].field[i - p1Counter][1]) ) );
+				console.log(['J', 'Q', 'K'].indexOf( (game.players[1].field[i - p1Counter][1]) )  > -1);				
+
+				//If there are still unchecked cards on p1's field
+				//If so, move card from field to scrap
+				game.scrap[game.scrap.length] = game.players[1].field.splice([i - p1Counter], 1)[0];
+				//Then incriment p1Counter, to keep track of where next element can now be found 
+				//(indicies shift after a card is removed)
+				p1Counter++;
+			}
+		}
+	}	
+};
+
 
 ///////////////////////////
 //chooseEffect() Function//
@@ -82,10 +143,15 @@ var chooseEffect = function(game, str) {
 		case 'destroyAllPoints':
 			destroyAllPoints(game);
 			break;
+		case 'destroyAllFaces':
+			destroyAllFaces(game);
+			break;
 	}
 };
 
 module.exports = {
+	//This function draws a card for the requesting user if they are in the requested game and it's their turn
+	//and they're under the hand-limit
 	draw: function(req, res) {
 		console.log("Draw request made");
 		console.log(req.isSocket);
@@ -152,6 +218,7 @@ module.exports = {
 		}
 	},
 
+	//This function deals 6 cards to p1 and 5 to p0 (p0 is expected to go first). Note: It does not reset the game!
 	deal: function(req, res) {
 		console.log("Deal request made");
 		//Capture parameters. Expecting {displayId: displayId}
@@ -199,7 +266,7 @@ module.exports = {
 		}
 	},
 
-	//Shuffles the cards in a deck
+	//Shuffles the cards in a game's deck
 	shuffle: function(req, res) {
 		console.log("Shuffle request made");
 		console.log(req.body);
@@ -381,10 +448,10 @@ module.exports = {
 
 	//Adds one-off effect to game.stack and sends message players
 	//Providing opportunity to add to the stack in response
+
 	//NOTE: This does not incriment the turn, that happens when collapse_stack fires 
-	//TODO: Send message with game to everyone except player making the request
+
 	//TODO: Check that requesting user is in game before continuing
-	//TODO: Handle cases where target_index is provided
 	//POTENTIAL BUG: If Game.message() fires before Game.publishUpdate(), the client will 
 	//render the dom and goof up the event handlers for responding with a 2
 	push_stack: function(req, res) {
@@ -498,10 +565,14 @@ module.exports = {
 		}
 	},
 
+	//This action performs the one-off effects that have been pushed to a game's stack
+	//It checks which OneOffs are on the stack and calls chooseEffect() (defined at the top of this file)
+	//Which calls the appropriate function (also defined at the top of this file) to perform the effect
 	collapse_stack: function(req, res) {
 		console.log("\nRequest made to collapse the stack");
+		//Capture the request parameters
 		var params = req.body;
-		//console.log(params);
+
 
 		//Check that request was made through socket (otherwise it is invalid)
 		if (req.isSocket) {
@@ -576,6 +647,14 @@ module.exports = {
 												console.log(temp_stack_check);
 												console.log('\n');
 											}
+											break;
+
+										case '6':
+											console.log("Last card in stack is a 6");
+											var str = game.rules.six;
+											//Use the str representing the rule to choose which
+											//effect to perform on the requested game
+											chooseEffect(game, str);
 											break;
 									}
 

@@ -4,6 +4,7 @@ a [Sails](http://sailsjs.org) application
 
 PREVIOUS:
 -Began collapse_stack
+	-Added function to destroy all face cards and bound it to 6, by default
 	-Added code to counter previous one-off if the top of the stack is a two
 	-destroyAllPoints() completed
 	-collapse_stack now deletes the one-off after  running chooseEffect()
@@ -32,7 +33,10 @@ PREVIOUS:
 TODO:
 -Enable the one-offs
 	-collapse_stack
-		-Next: Create effects for 2's
+		-Next: Finish 5 (draw 2)
+		-Finish 9, 2 (effects that require target, but no further prompting of user after request)
+		-THEN: Finish 3, 4, 7 (effects that only prompt user to make choice as they resolve)
+		-Create effects for 2's
 			-Create function for playing a 2 on turn to destroy face card
 		-Action now exists and is called when a user declines countering a new one-off with a two
 		-Make a unique function for each one-off

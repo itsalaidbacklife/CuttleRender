@@ -83,7 +83,8 @@ module.exports = {
 		rules: {
 			type: 'json',
 			defaultsTo: {
-				ace: 'destroyAllPoints'
+				ace: 'destroyAllPoints',
+				six: 'destroyAllFaces'
 			}
 		}
 
