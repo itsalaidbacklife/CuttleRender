@@ -4,6 +4,7 @@ a [Sails](http://sailsjs.org) application
 
 PREVIOUS:
 -Began collapse_stack
+	-Added code to counter previous one-off if the top of the stack is a two
 	-destroyAllPoints() completed
 	-collapse_stack now deletes the one-off after  running chooseEffect()
 	-collapse_stack now properly iterates through each one-off in game.stack
@@ -32,11 +33,10 @@ TODO:
 -Enable the one-offs
 	-collapse_stack
 		-Next: Create effects for 2's
+			-Create function for playing a 2 on turn to destroy face card
 		-Action now exists and is called when a user declines countering a new one-off with a two
-		-collapse_stack currently calls a test function that at top of GameController
 		-Make a unique function for each one-off
-			-Or should there be one function per rule????
-			-And one function that takes a game param and a string key to pick the rule to execute??
+
 
 
 -Fix deal method to reset game

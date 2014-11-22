@@ -463,6 +463,7 @@ module.exports = {
 											console.log("Error. One-off not created");
 										} else {
 											console.log(one_off);
+											console.log('\n');
 											//Place the card being played (as a one-off) in the scrap pile
 											var temp_card = game.players[params.caster_index].hand[params.hand_index];
 											//Switch the hand[0] with hand[hand_index]
@@ -498,7 +499,7 @@ module.exports = {
 	},
 
 	collapse_stack: function(req, res) {
-		console.log("Request made to collapse the stack");
+		console.log("\nRequest made to collapse the stack");
 		var params = req.body;
 		//console.log(params);
 
@@ -517,31 +518,84 @@ module.exports = {
 							res.send("Game not found");
 							//Check that requesting user is in the requested game
 						} else if (req.socket.id === game.players[0].socketId || req.socket.id === game.players[1].socketId) {
-							game.stack.forEach(
+							//temp_stack_loop is an array that will be populated with all of the OneOffs in game.stack in reverse order
+							//it will be used to iterate through each OneOff and perform the appropriate effect
+							var temp_stack_loop =[];
+
+							//temp_stack_check will initialized to game.stack.reverse() (it will start out the same as temp_stack_loop)
+							//When a OneOff is executed, it will be deleted and it's corresponding  element in temp_stack_check is removed.
+
+							//Before a OneOff is executed (within the tempp_stack_loop.forEach() loop), we check that the one-off
+							//can still be found in temp_stack_check. If not, then it was countered (removed) and will be skipped.
+							var temp_stack_check = [];
+
+							//Populate temp_stack_loop and temp_stack_check with all OneOffs in game.stack in reverse order
+							game.stack.reverse().forEach(
+							function(one_off, index, stack){
+								temp_stack_loop[index] = one_off;
+								temp_stack_check[index] = one_off;
+							});
+
+							//Iterate through each OneOff in temp_stack_loop and execute them if they are still in temp_stack_check
+							temp_stack_loop.forEach(
 							function(one_off, index, arr){
 								console.log(one_off);
-								//Switch based on card at top of stack,
-								//Then capture the rule associated with that card in game.rules
-								switch (one_off.card[1]) {
-									case '1':
-										console.log("Last card in stack is an Ace");
-										//Pull the name of the rule from game.rules
-										var str = game.rules.ace;
-										//Use the str representing the rule to choose which
-										//effect to perform on the requested game
-										chooseEffect(game, str);
-										break;
-								}
+								//Check that the current OneOff is still in temp_stack_check
+								if (temp_stack_check.indexOf(one_off > -1)) {
+									//If so, execute it, then remove it from the temp_stack check and delete it from game.stack
+									console.log(one_off.card + " is in temp_stack_check\n");
+									//Switch based on card at top of stack,
+									//Then capture the rule associated with that card in game.rules
+									switch (one_off.card[1]) {
+										//If the one off was an ace, apply the rule for game.rules.ace
+										case '1':
+											console.log("Last card in stack is an Ace");
+											//Pull the name of the rule from game.rules
+											var str = game.rules.ace;
+											//Use the str representing the rule to choose which
+											//effect to perform on the requested game
+											chooseEffect(game, str);
+											break;
 
-								//After running chooseEffect(), delete the one-off corresponding
-								//to the effect just executed
-								OneOff.destroy(one_off.id, function(res){
-									console.log(res);
-								});
-								console.log(game.stack);
-								//Then save changes and publish the update
-								game.save();
-								Game.publishUpdate(params.displayId, {game: game});
+										case '2':
+											console.log("Last card in stack is a 2");
+											//Check whether the two is the only card in the stack
+											//If so, it's being played out of turn and is a counter to a previous one-off
+											if (temp_stack_check.length !== 1) {
+												console.log("Two is being used to counter previous one-off");
+												//If not, then use the two to counter the one-off before it
+												OneOff.destroy(temp_stack_check[1].id, function(res){
+													console.log("Destroyed one-off by countering it");
+													console.log(res);
+												});
+												console.log("Removing effect being countered from stack: ");
+												var removed = temp_stack_check.splice(1, 1);
+												console.log("Logging removed one-off from temp_stack_check");
+												console.log(removed);
+												console.log("Logging temp_stack_check after attempted removal");
+												console.log(temp_stack_check);
+												console.log('\n');
+											}
+											break;
+									}
+
+									//After running chooseEffect(), delete the OneOff corresponding
+									//to the effect just executed (from the database)
+									OneOff.destroy(one_off.id, function(res){
+										console.log(res);
+									});
+									console.log("Removing the one-off that just executed from temp_stack_loop: ");
+									removed = temp_stack_loop.splice(0, 1);
+									console.log(removed);
+									console.log("\nLogging temp_stack_loop after one-off\n");
+									console.log(temp_stack_loop);
+
+									//Incriment the turn
+									game.turn++;
+									//Then save changes and publish the update
+									game.save();
+									Game.publishUpdate(params.displayId, {game: game});
+								}
 							});
 
 						}
