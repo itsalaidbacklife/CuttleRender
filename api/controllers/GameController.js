@@ -128,6 +128,20 @@ var destroyAllFaces = function(game) {
 	}	
 };
 
+//Draws two cards for the target player, if this does not bring them over the hand limit
+var drawTwo = function(game) {
+	//The cards will be drawn by the player whose turn it is
+	var player_number = game.turn % 2
+	//If chosen player is beneath the hand limit, draw a card for them
+	if (game.players[player_number].hand.length <= game.handLimit) {
+		game.players[player_number].hand[game.players[player_number].hand.length] = game.deck.shift();
+		//If they are still beneath the hand limit, draw them another card
+		if (game.players[player_number].hand.length <= game.handLimit) {
+			game.players[player_number].hand[game.players[player_number].hand.length] = game.deck.shift();
+		}
+	}
+};
+
 
 ///////////////////////////
 //chooseEffect() Function//
@@ -145,6 +159,9 @@ var chooseEffect = function(game, str) {
 			break;
 		case 'destroyAllFaces':
 			destroyAllFaces(game);
+			break;
+		case 'drawTwo':
+			drawTwo(game);
 			break;
 	}
 };
@@ -648,6 +665,15 @@ module.exports = {
 												console.log('\n');
 											}
 											break;
+
+										case '5':
+											console.log("Last card in stack is a 5");
+											var str = game.rules.five;
+
+											//Use the str representing the rule to choose which effect
+											//to perform on the requested game
+											chooseEffect(game, str);
+
 
 										case '6':
 											console.log("Last card in stack is a 6");
