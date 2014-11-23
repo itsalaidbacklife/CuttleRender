@@ -5,6 +5,23 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
+//////////////////////
+//Object Definitions//
+//////////////////////
+
+//Target represents a card, or player being targeted for an effect
+var Target = function() {
+	//String that represents whether the target is a card, or player
+	//Expected: 'player' or 'card'
+	this.kind = '';
+
+	//Integer that represents which player, or which player's card is being targeted
+	this.player = null;
+
+	//Integer that represents which card on given player's field is being targeted
+	this.index = null;
+};
+
 ///////////////////
 //One-Off Effects//
 ///////////////////
@@ -142,6 +159,17 @@ var drawTwo = function(game) {
 	}
 };
 
+//Destroys one face card in a game specified by target (Target obj defined above)
+var destroyTargetFace = function(game, target) {
+	if (['K', 'J', 'Q'].indexOf(game.players[target.player].field[target.index][1]) > -1) {
+		game.scrap[game.scrap.length] = game.players[target.player].field.splice(target.index, 1);
+	//If the target card isn't a face card, roll back the turn and move the one-off back to its caster's hand
+	} else {
+		game.turn--;
+		game.players[(target.player + 1) % 2].hand[game.players[(target.player + 1) % 2].hand.length] = game.scrap.pop();
+	}
+};
+
 
 ///////////////////////////
 //chooseEffect() Function//
@@ -150,8 +178,9 @@ var drawTwo = function(game) {
  *This function performs a one-off effect on a game
  */
 
+//TODO: Fix cases where target isn't passed appropriately
 //This function takes a game and a string (representing which effect is to be executed within chosen game)
-var chooseEffect = function(game, str) {
+var chooseEffect = function(game, str, target) {
 	console.log("Choosing effect: " + str);
 	switch (str) {
 		case 'destroyAllPoints':
@@ -162,6 +191,9 @@ var chooseEffect = function(game, str) {
 			break;
 		case 'drawTwo':
 			drawTwo(game);
+			break;
+		case 'destroyTargetFace':
+			destroyTargetFace(game, target);
 			break;
 	}
 };
@@ -533,7 +565,7 @@ module.exports = {
 											}, req);
 										}
 									});
-									//Else a target index was given
+								//Else a target index was given
 								} else {
 									//If so, create a new one-off effect for them
 									OneOff.create({
@@ -555,8 +587,7 @@ module.exports = {
 											game.players[params.caster_index].hand[0] = temp_card;
 											//Shift one-off into the scrap pile
 											game.scrap[game.scrap.length] = game.players[params.caster_index].hand.shift();
-											//Incriment the turn
-											game.turn++;
+
 											//Save changes
 											game.save();
 											//Update all users playing this game of the changes
@@ -663,6 +694,19 @@ module.exports = {
 												console.log("Logging temp_stack_check after attempted removal");
 												console.log(temp_stack_check);
 												console.log('\n');
+											//Otherwise, two was played on turn and is targeting a face-card
+											} else {
+												if (one_off.hasOwnProperty("target_index")) {
+
+													var target = new Target();
+													//Assume the target player is the opponent
+													target.player = (one_off.caster_index + 1) % 2;
+													target.index = one_off.target_index;
+													target.kind = 'card';
+													//Capture appropriate rule and perform effect
+													var str = game.rules.two;
+													chooseEffect(game, str, target);
+												}
 											}
 											break;
 

@@ -84,6 +84,7 @@ module.exports = {
 			type: 'json',
 			defaultsTo: {
 				ace: 'destroyAllPoints',
+				two: 'destroyTargetFace',
 				five: 'drawTwo',
 				six: 'destroyAllFaces'
 			}
