@@ -3,6 +3,12 @@
 a [Sails](http://sailsjs.org) application
 
 PREVIOUS:
+-Began enabling victory
+	-Victory now properly resets game (without switchin p0 and p1)
+	-Added function to reset game ---> reset(game)
+	-Added victory check on game  ---> winner(game)
+	-When the client is updated, it checks if the game has a winner
+		-If so, it confirms that they'd like to play again
 -Began collapse_stack
 	-Added function to destroy target face card and bound it to 2, by default
 	-Added function to draw 2 and bound it to 5, by default
@@ -33,6 +39,10 @@ PREVIOUS:
 -Prevented users from entering closed games
 
 TODO:
+-Add Victory
+	-TODO: Switch p0 and p1 on reset(game)
+	-NEXT: Handle case where a player declines rematch
+		-Delete the game and bring everyone to the homepage
 -Enable the one-offs
 	-collapse_stack
 		-NEXT: Finish 9 (effects that require target, but no further prompting of user after request)
@@ -43,6 +53,9 @@ TODO:
 		-Make a unique function for each one-off
 		-Fix other one-off effect calls to send null target if target is not required, to generalize which cards are bound to which effects
 -Fix move_card to leverage splice() (and maintain order of cards in hand/field)
+
+ERRORS:
+-Check joinGame and goToGame for failure to populate players when p1 joins (p0 gets error)
 
 
 -Fix deal method to reset game

@@ -286,6 +286,18 @@ socket.on('game', function(obj) {
 		console.log(obj.data);
 		//Render the game using the game from server
 		render(obj.data.game);
+		//Check for a winner
+		if (obj.data.game.hasOwnProperty('winner')) {
+			//Check that the winner is an index less than or equal to the number of players
+			if (obj.data.game.winner === 0 || obj.data.game.winner === 1) {
+				var play_again = confirm('Player ' + obj.data.game.winner + ' has won! Would you like to play again?');
+				if (play_again) {
+					socket.get('/play_again', {displayId: displayId}, function(res){
+						console.log(response);
+					});
+				}
+			}
+		}
 		//Server will send message if opponent plays a one-off. Client then gives user chance to counter
 		//by playing a 2 as a one-off
 	} else if (obj.verb == 'messaged') {

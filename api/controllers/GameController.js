@@ -22,9 +22,171 @@ var Target = function() {
 	this.index = null;
 };
 
-///////////////////
-//One-Off Effects//
-///////////////////
+////////////////////////
+//Function Definitions//
+////////////////////////
+
+//Checks for a winner by checking the number of points both players haveAnd comparing 
+//with the number they need to win (Based on the number of kings on their field)
+var winner = function(game) {
+	console.log('\nChecking game ' + game.displayId + ' for a winner');
+	var p0Points = 0;
+	var p0Kings = 0;
+	var p1Points = 0;
+	var p1Kings = 0;
+
+	var temp_rank = 0;
+
+	//Check the numbers of points and kings for p0
+	game.players[0].field.forEach(
+	function(card, index, field){
+		switch(card[1]) {
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				temp_rank = parseInt(card[1]);
+				p0Points += temp_rank;
+				break;
+
+			case 'T':
+				p0Points += 10;
+				break;
+
+			case 'K':
+				p0Kings++;
+				break;
+		}
+	});
+
+	//Check if p0 has won
+	switch(p0Kings){
+		case 0:
+			if (p0Points >= 21) {
+				console.log('\nPlayer 0 is the winner!\n');
+				game.winner = 0;
+			}
+			break;
+		case 1:
+			if (p0Points >= 14) {
+				console.log('\nPlayer 0 is the winner!\n');
+				game.winner = 0;
+			}
+			break;
+		case 2:
+			if (p0Points >= 10) {
+				console.log('\nPlayer 0 is the winner!\n');
+				game.winner = 0;
+			}
+			break;
+		case 3:
+			if (p0Points >= 7) {
+				console.log('\nPlayer 0 is the winner!\n');
+				game.winner = 0;
+			}
+		case 4:
+			if (p0Points >= 5) {
+				console.log('\nPlayer 0 is the winner!\n');
+				game.winner = 0;
+			}
+	}
+	//Count the numbers of points and kings for p1
+	game.players[1].field.forEach(
+	function(card, index, field){
+		switch(card[1]) {
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				temp_rank = parseInt(card[1]);
+				p1Points += temp_rank;
+				break;
+
+			case 'T':
+				p1Points += 10;
+				break;
+
+			case 'K':
+				p1Kings++;
+				break;
+		}
+
+	});
+	//Check if p1 has won
+	switch(p1Kings){
+		case 0:
+			if (p1Points >= 21) {
+				console.log('\nPlayer 1 is the winner!\n');
+				game.winner = 1;
+			}
+			break;
+		case 1:
+			if (p1Points >= 14) {
+				console.log('\nPlayer 1 is the winner!\n');
+				game.winner = 1;
+			}
+			break;
+		case 2:
+			if (p1Points >= 10) {
+				console.log('\nPlayer 1 is the winner!\n');
+				game.winner = 1;
+			}
+			break;
+		case 3:
+			if (p1Points >= 7) {
+				console.log('\nPlayer 1 is the winner!\n');
+				game.winner = 1;
+			}
+		case 4:
+			if (p1Points >= 5) {
+				console.log('\nPlayer 1 is the winner!\n');
+				game.winner = 1;
+			}
+	}
+};
+
+//Resets the game
+var reset = function(game) {
+	console.log("\nReseting Game " + game.displayId);
+	//Reset deck:
+	game.deck = [];
+	game.cleanDeck.forEach(
+	function(card, index, deck) {
+		game.deck[index] = card;
+	});
+
+	//Reset hands and fields
+	game.players[0].hand = [];	
+	
+	game.players[0].field = [];
+	
+	game.players[1].hand = [];
+
+	game.players[1].field = [];
+	
+	game.scrap = [];
+
+	game.turn = 0;
+
+	//Reset winner
+	game.winner = null;
+	game.play_again = 0;
+
+};
+
+								///////////////////
+								//One-Off Effects//
+								///////////////////
 /*
  * These are functions that take a game object and perform an effect to it
  */
@@ -408,7 +570,9 @@ module.exports = {
 									//Shift desired card off top of player's hand into the last index of their field
 									game.players[params.player].field[game.players[params.player].field.length] = game.players[params.player].hand.shift();
 									game.turn++;
-									//Check if user wishes to play card from hand to opponent's field
+									//Check for a win
+									winner(game);
+								//Check if user wishes to play card from hand to opponent's field
 								} else if (dest.place === 'op_field') {
 									//Check if user wishes to scuttle
 									if (dest.scuttle === true) {
@@ -741,6 +905,8 @@ module.exports = {
 
 									//Incriment the turn
 									game.turn++;
+									//Check for a winner
+									winner(game);
 									//Then save changes and publish the update
 									game.save();
 									Game.publishUpdate(params.displayId, {game: game});
@@ -749,6 +915,33 @@ module.exports = {
 
 						}
 					});
+			}
+		}
+	},
+
+	play_again: function(req, res) {
+		console.log("Request made to play again");
+		var params = req.body;
+
+		if (req.isSocket) {
+			if (params.hasOwnProperty('displayId')) {
+				Game.findOne(params.displayId).populate('players').exec(
+				function(err, game){
+					if (err || !game) {
+						console.log("Game not found");
+					} else if(game.play_again === game.players.length - 1) {
+						console.log("Everyone wants to play again. Resetting");
+						reset(game);
+						game.save();
+						Game.publishUpdate(params.displayId, {game: game});
+					} else {
+						game.play_again++;
+
+						console.log(game.play_again + " players want to play again");
+						game.save();
+						//Game.publishUpdate(params.displayId, {game: game}, req);
+					}
+				});
 			}
 		}
 	}

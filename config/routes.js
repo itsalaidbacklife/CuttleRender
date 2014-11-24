@@ -64,6 +64,8 @@ module.exports.routes = {
 
   'GET /push_stack': 'GameController.push_stack',
 
-  'GET /collapse_stack': 'GameController.collapse_stack'
+  'GET /collapse_stack': 'GameController.collapse_stack',
+
+  'GET /play_again': 'GameController.play_again'
 
 };
