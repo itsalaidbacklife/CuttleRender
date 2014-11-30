@@ -190,6 +190,10 @@ var one_off_res = function() {
 			var counter = confirm("Would you like to counter Opponent's one-off with a 2?");
 			if (counter) {
 				one_off_res();
+			} else {
+				socket.get('/collapse_stack', {
+					displayId: displayId
+				});
 			}
 		}
 	});
@@ -404,6 +408,7 @@ $('#one_off').on('click', function() {
 	if (sel.card !== '') {
 		console.log(sel.card + " is selected");
 		console.log(sel.card[1]);
+		$('#selector').html('');
 		switch (parseInt(sel.card[1])) {
 			//These are the cases where the one-off effect does not require a target index
 			case 1:
