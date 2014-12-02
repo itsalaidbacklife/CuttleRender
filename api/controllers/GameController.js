@@ -182,6 +182,18 @@ var reset = function(game) {
 	game.winner = null;
 	game.play_again = 0;
 
+	//Switch players
+	//console.log(game.players);
+	//var temp_players = [game.players[1], game.players[0]];
+	//game.players = temp_players;
+	//console.log(game.players);
+	//var temp_player = game.players[0];
+	//game.players[0] = game.players[1];
+	//game.players[1] = temp_player;
+
+	console.log("\nlogging reset");
+	console.log(game);
+
 };
 
 								///////////////////
@@ -310,7 +322,7 @@ var destroyAllFaces = function(game) {
 //Draws two cards for the target player, if this does not bring them over the hand limit
 var drawTwo = function(game) {
 	//The cards will be drawn by the player whose turn it is
-	var player_number = game.turn % 2
+	var player_number = game.turn % 2;
 	//If chosen player is beneath the hand limit, draw a card for them
 	if (game.players[player_number].hand.length <= game.handLimit) {
 		game.players[player_number].hand[game.players[player_number].hand.length] = game.deck.shift();
@@ -881,6 +893,7 @@ module.exports = {
 											//Use the str representing the rule to choose which effect
 											//to perform on the requested game
 											chooseEffect(game, str);
+											break;
 
 
 										case '6':

@@ -53,6 +53,9 @@ TODO:
 		-Make a unique function for each one-off
 		-Fix other one-off effect calls to send null target if target is not required, to generalize which cards are bound to which effects
 -Fix move_card to leverage splice() (and maintain order of cards in hand/field)
+-Create instance methods for Game object
+	-whose_turn()
+	-all one-off effects
 
 ERRORS:
 -Check joinGame and goToGame for failure to populate players when p1 joins (p0 gets error)
