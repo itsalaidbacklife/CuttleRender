@@ -39,33 +39,33 @@ var winner = function(game) {
 
 	//Check the numbers of points and kings for p0
 	game.players[0].field.forEach(
-	function(card, index, field){
-		switch(card[1]) {
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				temp_rank = parseInt(card[1]);
-				p0Points += temp_rank;
-				break;
+		function(card, index, field) {
+			switch (card[1]) {
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+					temp_rank = parseInt(card[1]);
+					p0Points += temp_rank;
+					break;
 
-			case 'T':
-				p0Points += 10;
-				break;
+				case 'T':
+					p0Points += 10;
+					break;
 
-			case 'K':
-				p0Kings++;
-				break;
-		}
-	});
+				case 'K':
+					p0Kings++;
+					break;
+			}
+		});
 
 	//Check if p0 has won
-	switch(p0Kings){
+	switch (p0Kings) {
 		case 0:
 			if (p0Points >= 21) {
 				console.log('\nPlayer 0 is the winner!\n');
@@ -97,33 +97,33 @@ var winner = function(game) {
 	}
 	//Count the numbers of points and kings for p1
 	game.players[1].field.forEach(
-	function(card, index, field){
-		switch(card[1]) {
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				temp_rank = parseInt(card[1]);
-				p1Points += temp_rank;
-				break;
+		function(card, index, field) {
+			switch (card[1]) {
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+					temp_rank = parseInt(card[1]);
+					p1Points += temp_rank;
+					break;
 
-			case 'T':
-				p1Points += 10;
-				break;
+				case 'T':
+					p1Points += 10;
+					break;
 
-			case 'K':
-				p1Kings++;
-				break;
-		}
+				case 'K':
+					p1Kings++;
+					break;
+			}
 
-	});
+		});
 	//Check if p1 has won
-	switch(p1Kings){
+	switch (p1Kings) {
 		case 0:
 			if (p1Points >= 21) {
 				console.log('\nPlayer 1 is the winner!\n');
@@ -161,19 +161,19 @@ var reset = function(game) {
 	//Reset deck:
 	game.deck = [];
 	game.cleanDeck.forEach(
-	function(card, index, deck) {
-		game.deck[index] = card;
-	});
+		function(card, index, deck) {
+			game.deck[index] = card;
+		});
 
 	//Reset hands and fields
-	game.players[0].hand = [];	
-	
+	game.players[0].hand = [];
+
 	game.players[0].field = [];
-	
+
 	game.players[1].hand = [];
 
 	game.players[1].field = [];
-	
+
 	game.scrap = [];
 
 	game.turn = 0;
@@ -196,9 +196,9 @@ var reset = function(game) {
 
 };
 
-								///////////////////
-								//One-Off Effects//
-								///////////////////
+///////////////////
+//One-Off Effects//
+///////////////////
 /*
  * These are functions that take a game object and perform an effect to it
  */
@@ -231,7 +231,7 @@ var destroyAllPoints = function(game) {
 		//Check if we have looped through all of p0's field, yet.
 		if (i - p0Counter < game.players[0].field.length) {
 			//Check if the card rank (specified by the card[1] is a number)
-			if (['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T'].indexOf( (game.players[0].field[i - p0Counter][1])) > -1 ) {
+			if (['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T'].indexOf((game.players[0].field[i - p0Counter][1])) > -1) {
 				console.log("p0's card is a number: " + game.players[0].field[i - p0Counter]);
 
 				//If so, move card from field to scrap
@@ -244,7 +244,7 @@ var destroyAllPoints = function(game) {
 		//Check that we have not looped through all of p1's field
 		if (i - p1Counter < game.players[1].field.length) {
 			//If the card is a number card, append its index to p1Indicies. This will be used to remove the card
-			if (['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T'].indexOf((game.players[1].field[i - p1Counter][1])) > -1 ) {
+			if (['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T'].indexOf((game.players[1].field[i - p1Counter][1])) > -1) {
 				console.log("p1's card is a number: " + game.players[1].field[i - p1Counter]);
 
 				//If there are still unchecked cards on p1's field
@@ -287,10 +287,10 @@ var destroyAllFaces = function(game) {
 		//Check if we have looped through all of p0's field, yet.
 		if (i - p0Counter < game.players[0].field.length) {
 			//Check if the card rank (specified by the card[1] is a face card)
-			if (['J', 'Q', 'K'].indexOf(game.players[0].field[i - p0Counter][1]) > -1)  {
+			if (['J', 'Q', 'K'].indexOf(game.players[0].field[i - p0Counter][1]) > -1) {
 				console.log("p0's card is a face card: " + game.players[0].field[i - p0Counter]);
-				console.log(['J', 'Q', 'K'].indexOf( (game.players[0].field[i - p0Counter][1]) ) );
-				console.log(['J', 'Q', 'K'].indexOf( (game.players[0].field[i - p0Counter][1]) )  > -1);
+				console.log(['J', 'Q', 'K'].indexOf((game.players[0].field[i - p0Counter][1])));
+				console.log(['J', 'Q', 'K'].indexOf((game.players[0].field[i - p0Counter][1])) > -1);
 
 
 				//If so, move card from field to scrap
@@ -303,10 +303,10 @@ var destroyAllFaces = function(game) {
 		//Check that we have not looped through all of p1's field
 		if (i - p1Counter < game.players[1].field.length) {
 			//If the card is a face card, append its index to p1Indicies. This will be used to remove the card
-			if (['J', 'Q', 'K'].indexOf( game.players[1].field[i - p1Counter][1]) > -1 ) {
+			if (['J', 'Q', 'K'].indexOf(game.players[1].field[i - p1Counter][1]) > -1) {
 				console.log("p1's card is a face card: " + game.players[1].field[i - p1Counter]);
-				console.log(['J', 'Q', 'K'].indexOf( (game.players[1].field[i - p1Counter][1]) ) );
-				console.log(['J', 'Q', 'K'].indexOf( (game.players[1].field[i - p1Counter][1]) )  > -1);				
+				console.log(['J', 'Q', 'K'].indexOf((game.players[1].field[i - p1Counter][1])));
+				console.log(['J', 'Q', 'K'].indexOf((game.players[1].field[i - p1Counter][1])) > -1);
 
 				//If there are still unchecked cards on p1's field
 				//If so, move card from field to scrap
@@ -316,7 +316,7 @@ var destroyAllFaces = function(game) {
 				p1Counter++;
 			}
 		}
-	}	
+	}
 };
 
 //Draws two cards for the target player, if this does not bring them over the hand limit
@@ -337,7 +337,7 @@ var drawTwo = function(game) {
 var destroyTargetFace = function(game, target) {
 	if (['K', 'J', 'Q'].indexOf(game.players[target.player].field[target.index][1]) > -1) {
 		game.scrap[game.scrap.length] = game.players[target.player].field.splice(target.index, 1);
-	//If the target card isn't a face card, roll back the turn and move the one-off back to its caster's hand
+		//If the target card isn't a face card, roll back the turn and move the one-off back to its caster's hand
 	} else {
 		game.turn--;
 		game.players[(target.player + 1) % 2].hand[game.players[(target.player + 1) % 2].hand.length] = game.scrap.pop();
@@ -584,7 +584,7 @@ module.exports = {
 									game.turn++;
 									//Check for a win
 									winner(game);
-								//Check if user wishes to play card from hand to opponent's field
+									//Check if user wishes to play card from hand to opponent's field
 								} else if (dest.place === 'op_field') {
 									//Check if user wishes to scuttle
 									if (dest.scuttle === true) {
@@ -741,7 +741,7 @@ module.exports = {
 											}, req);
 										}
 									});
-								//Else a target index was given
+									//Else a target index was given
 								} else {
 									//If so, create a new one-off effect for them
 									OneOff.create({
@@ -815,7 +815,7 @@ module.exports = {
 						} else if (req.socket.id === game.players[0].socketId || req.socket.id === game.players[1].socketId) {
 							//temp_stack_loop is an array that will be populated with all of the OneOffs in game.stack in reverse order
 							//it will be used to iterate through each OneOff and perform the appropriate effect
-							var temp_stack_loop =[];
+							var temp_stack_loop = [];
 
 							//temp_stack_check will initialized to game.stack.reverse() (it will start out the same as temp_stack_loop)
 							//When a OneOff is executed, it will be deleted and it's corresponding  element in temp_stack_check is removed.
@@ -826,105 +826,107 @@ module.exports = {
 
 							//Populate temp_stack_loop and temp_stack_check with all OneOffs in game.stack in reverse order
 							game.stack.reverse().forEach(
-							function(one_off, index, stack){
-								temp_stack_loop[index] = one_off;
-								temp_stack_check[index] = one_off;
-							});
+								function(one_off, index, stack) {
+									temp_stack_loop[index] = one_off;
+									temp_stack_check[index] = one_off;
+								});
 
 							//Iterate through each OneOff in temp_stack_loop and execute them if they are still in temp_stack_check
 							temp_stack_loop.forEach(
-							function(one_off, index, arr){
-								console.log(one_off);
-								//Check that the current OneOff is still in temp_stack_check
-								if (temp_stack_check.indexOf(one_off > -1)) {
-									//If so, execute it, then remove it from the temp_stack check and delete it from game.stack
-									console.log(one_off.card + " is in temp_stack_check\n");
-									//Switch based on card at top of stack,
-									//Then capture the rule associated with that card in game.rules
-									switch (one_off.card[1]) {
-										//If the one off was an ace, apply the rule for game.rules.ace
-										case '1':
-											console.log("Last card in stack is an Ace");
-											//Pull the name of the rule from game.rules
-											var str = game.rules.ace;
-											//Use the str representing the rule to choose which
-											//effect to perform on the requested game
-											chooseEffect(game, str);
-											break;
+								function(one_off, index, arr) {
+									console.log(one_off);
+									//Check that the current OneOff is still in temp_stack_check
+									if (temp_stack_check.indexOf(one_off > -1)) {
+										//If so, execute it, then remove it from the temp_stack check and delete it from game.stack
+										console.log(one_off.card + " is in temp_stack_check\n");
+										//Switch based on card at top of stack,
+										//Then capture the rule associated with that card in game.rules
+										switch (one_off.card[1]) {
+											//If the one off was an ace, apply the rule for game.rules.ace
+											case '1':
+												console.log("Last card in stack is an Ace");
+												//Pull the name of the rule from game.rules
+												var str = game.rules.ace;
+												//Use the str representing the rule to choose which
+												//effect to perform on the requested game
+												chooseEffect(game, str);
+												break;
 
-										case '2':
-											console.log("Last card in stack is a 2");
-											//Check whether the two is the only card in the stack
-											//If so, it's being played out of turn and is a counter to a previous one-off
-											if (temp_stack_check.length !== 1) {
-												console.log("Two is being used to counter previous one-off");
-												//If not, then use the two to counter the one-off before it
-												OneOff.destroy(temp_stack_check[1].id, function(res){
-													console.log("Destroyed one-off by countering it");
-													console.log(res);
-												});
-												console.log("Removing effect being countered from stack: ");
-												var removed = temp_stack_check.splice(1, 1);
-												console.log("Logging removed one-off from temp_stack_check");
-												console.log(removed);
-												console.log("Logging temp_stack_check after attempted removal");
-												console.log(temp_stack_check);
-												console.log('\n');
-											//Otherwise, two was played on turn and is targeting a face-card
-											} else {
-												if (one_off.hasOwnProperty("target_index")) {
+											case '2':
+												console.log("Last card in stack is a 2");
+												//Check whether the two is the only card in the stack
+												//If so, it's being played out of turn and is a counter to a previous one-off
+												if (temp_stack_check.length !== 1) {
+													console.log("Two is being used to counter previous one-off");
+													//If not, then use the two to counter the one-off before it
+													OneOff.destroy(temp_stack_check[1].id, function(res) {
+														console.log("Destroyed one-off by countering it");
+														console.log(res);
+													});
+													console.log("Removing effect being countered from stack: ");
+													var removed = temp_stack_check.splice(1, 1);
+													console.log("Logging removed one-off from temp_stack_check");
+													console.log(removed);
+													console.log("Logging temp_stack_check after attempted removal");
+													console.log(temp_stack_check);
+													console.log('\n');
+													//Otherwise, two was played on turn and is targeting a face-card
+												} else {
+													if (one_off.hasOwnProperty("target_index")) {
 
-													var target = new Target();
-													//Assume the target player is the opponent
-													target.player = (one_off.caster_index + 1) % 2;
-													target.index = one_off.target_index;
-													target.kind = 'card';
-													//Capture appropriate rule and perform effect
-													var str = game.rules.two;
-													chooseEffect(game, str, target);
+														var target = new Target();
+														//Assume the target player is the opponent
+														target.player = (one_off.caster_index + 1) % 2;
+														target.index = one_off.target_index;
+														target.kind = 'card';
+														//Capture appropriate rule and perform effect
+														var str = game.rules.two;
+														chooseEffect(game, str, target);
+													}
 												}
-											}
-											break;
+												break;
 
-										case '5':
-											console.log("Last card in stack is a 5");
-											var str = game.rules.five;
+											case '5':
+												console.log("Last card in stack is a 5");
+												var str = game.rules.five;
 
-											//Use the str representing the rule to choose which effect
-											//to perform on the requested game
-											chooseEffect(game, str);
-											break;
+												//Use the str representing the rule to choose which effect
+												//to perform on the requested game
+												chooseEffect(game, str);
+												break;
 
 
-										case '6':
-											console.log("Last card in stack is a 6");
-											var str = game.rules.six;
-											//Use the str representing the rule to choose which
-											//effect to perform on the requested game
-											chooseEffect(game, str);
-											break;
+											case '6':
+												console.log("Last card in stack is a 6");
+												var str = game.rules.six;
+												//Use the str representing the rule to choose which
+												//effect to perform on the requested game
+												chooseEffect(game, str);
+												break;
+										}
+
+										//After running chooseEffect(), delete the OneOff corresponding
+										//to the effect just executed (from the database)
+										OneOff.destroy(one_off.id, function(res) {
+											console.log(res);
+										});
+										console.log("Removing the one-off that just executed from temp_stack_loop: ");
+										removed = temp_stack_loop.splice(0, 1);
+										console.log(removed);
+										console.log("\nLogging temp_stack_loop after one-off\n");
+										console.log(temp_stack_loop);
+
+										//Incriment the turn
+										game.turn++;
+										//Check for a winner
+										winner(game);
+										//Then save changes and publish the update
+										game.save();
+										Game.publishUpdate(params.displayId, {
+											game: game
+										});
 									}
-
-									//After running chooseEffect(), delete the OneOff corresponding
-									//to the effect just executed (from the database)
-									OneOff.destroy(one_off.id, function(res){
-										console.log(res);
-									});
-									console.log("Removing the one-off that just executed from temp_stack_loop: ");
-									removed = temp_stack_loop.splice(0, 1);
-									console.log(removed);
-									console.log("\nLogging temp_stack_loop after one-off\n");
-									console.log(temp_stack_loop);
-
-									//Incriment the turn
-									game.turn++;
-									//Check for a winner
-									winner(game);
-									//Then save changes and publish the update
-									game.save();
-									Game.publishUpdate(params.displayId, {game: game});
-								}
-							});
+								});
 
 						}
 					});
@@ -939,22 +941,24 @@ module.exports = {
 		if (req.isSocket) {
 			if (params.hasOwnProperty('displayId')) {
 				Game.findOne(params.displayId).populate('players').exec(
-				function(err, game){
-					if (err || !game) {
-						console.log("Game not found");
-					} else if(game.play_again === game.players.length - 1) {
-						console.log("Everyone wants to play again. Resetting");
-						reset(game);
-						game.save();
-						Game.publishUpdate(params.displayId, {game: game});
-					} else {
-						game.play_again++;
+					function(err, game) {
+						if (err || !game) {
+							console.log("Game not found");
+						} else if (game.play_again === game.players.length - 1) {
+							console.log("Everyone wants to play again. Resetting");
+							reset(game);
+							game.save();
+							Game.publishUpdate(params.displayId, {
+								game: game
+							});
+						} else {
+							game.play_again++;
 
-						console.log(game.play_again + " players want to play again");
-						game.save();
-						//Game.publishUpdate(params.displayId, {game: game}, req);
-					}
-				});
+							console.log(game.play_again + " players want to play again");
+							game.save();
+							//Game.publishUpdate(params.displayId, {game: game}, req);
+						}
+					});
 			}
 		}
 	}
